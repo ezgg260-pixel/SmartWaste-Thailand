@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071b22">
+<title>SmartWaste Thailand | ระบบเฝ้าระวังขยะอัจฉริยะ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#071b22;--panel:#102a32;--panel2:#153640;--line:#244650;--text:#e8f4f2;--muted:#9bb7b5;--green:#36d399;--blue:#4bb8ed;--amber:#f6bd60;--red:#ff6b6b;--shadow:0 14px 38px #0004}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#123a3d 0,transparent 35%),var(--bg);color:var(--text);font-family:'Kanit',sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1440px;margin:auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#36d399,#168a82);display:grid;place-items:center;font-size:25px;box-shadow:0 8px 25px #36d39933}.brand h1{font-size:23px;margin:0}.brand p{margin:0;color:var(--muted);font-size:12px}.header-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);border-radius:11px;padding:10px 14px;background:var(--panel2);color:var(--text);transition:.2s}.btn:hover{transform:translateY(-1px);border-color:var(--green)}.btn.primary{background:var(--green);border-color:var(--green);color:#05231c;font-weight:600}.btn.danger{border-color:#85444a;color:#ffaaaa}.btn.small{padding:7px 10px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px}.stat,.panel{background:linear-gradient(145deg,#122f37,#0e252d);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.stat{padding:16px;display:flex;gap:13px;align-items:center}.stat-icon{width:43px;height:43px;border-radius:13px;background:#36d3991b;display:grid;place-items:center;font-size:21px}.stat strong{display:block;font-size:24px;line-height:1.2}.stat span{font-size:12px;color:var(--muted)}
+.main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,.8fr);gap:15px}.panel{padding:17px;margin-bottom:15px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}.panel h2{font-size:17px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}.map-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.map-tools select{max-width:190px}select,input,textarea{background:#081e25;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;min-width:0}#map{height:520px;border-radius:13px;border:1px solid var(--line);z-index:1}.map-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:10px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.map-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px}
+.side{min-width:0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{width:100%}.field textarea{min-height:65px;resize:vertical}.gps-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}.gps-status{font-size:12px;color:var(--muted)}.photo-preview{width:100%;max-height:170px;object-fit:cover;border-radius:10px;display:none;margin-top:8px}
+.report-list{display:flex;flex-direction:column;gap:9px;max-height:340px;overflow:auto}.report{background:#0a2027;border:1px solid var(--line);border-radius:11px;padding:11px;display:flex;gap:10px;align-items:flex-start}.report .emoji{font-size:23px}.report-main{flex:1;min-width:0}.report-main b{font-size:13px}.report-main p{margin:3px 0;color:var(--muted);font-size:11px;overflow-wrap:anywhere}.severity{font-size:10px;padding:3px 7px;border-radius:20px;white-space:nowrap}.sev-low{background:#36d39922;color:#65e6b2}.sev-med{background:#f6bd6022;color:#ffd17d}.sev-high{background:#ff6b6b22;color:#ff9292}
+.rank-list{display:flex;flex-direction:column;gap:9px}.rank{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;font-size:13px}.rank-num{color:var(--amber);font-weight:700}.bar{height:6px;background:#25434b;border-radius:9px;margin-top:5px;overflow:hidden}.bar i{height:100%;display:block;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:9px}
+.empty{color:var(--muted);font-size:12px;text-align:center;padding:20px}.section-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tab{padding:8px 12px;border-radius:9px;background:transparent;color:var(--muted);border:1px solid var(--line)}.tab.active{background:#36d39920;color:var(--green);border-color:#36d39966}
+.scanner{display:grid;grid-template-columns:1fr 1fr;gap:12px}.scanner-box{border:1px dashed #3d6970;border-radius:12px;padding:14px;text-align:center;background:#0a2027}.scanner-box input{width:100%;margin-top:8px}.scanner-result{background:#0a2027;border-radius:12px;padding:14px;font-size:13px;line-height:1.6}.scanner-result strong{color:var(--green)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:14px}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#102a32;color:#e8f4f2}.leaflet-popup-content{font-family:'Kanit',sans-serif}
+@media(max-width:900px){.main{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}#map{height:430px}}
+@media(max-width:520px){.app{padding:12px}.brand h1{font-size:19px}.header-actions .btn{font-size:12px;padding:8px}.grid{gap:8px}.stat{padding:11px}.stat strong{font-size:20px}.stat-icon{width:36px;height:36px}.panel{padding:13px}#map{height:370px}.form-grid,.scanner{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand"><div class="logo">♻</div><div><h1>SmartWaste Thailand</h1><p>ระบบเฝ้าระวังและจัดการข้อมูลขยะเชิงพื้นที่</p></div></div>
+ <div class="header-actions"><button class="btn" id="locateTop">◎ ระบุตำแหน่ง</button><button class="btn" id="exportBtn">⇩ ส่งออก CSV</button></div>
+</header>
+
+<section class="grid">
+ <div class="stat"><div class="stat-icon">📍</div><div><strong id="totalReports">0</strong><span>รายงานขยะทั้งหมด</span></div></div>
+ <div class="stat"><div class="stat-icon">🏙️</div><div><strong id="provinceCount">0</strong><span>จังหวัดที่มีรายงาน</span></div></div>
+ <div class="stat"><div class="stat-icon">⚠️</div><div><strong id="highReports">0</strong><span>จุดระดับสูง</span></div></div>
+ <div class="stat"><div class="stat-icon">♻️</div><div><strong id="scanCount">0</strong><span>รายการคัดแยกขยะ</span></div></div>
+</section>
+
+<div class="main">
+ <div>
+  <section class="panel">
+   <div class="panel-head"><div><h2>🛰️ แผนที่ดาวเทียมประเทศไทย</h2><div class="sub">แสดงตำแหน่งรายงานขยะจากผู้ใช้งานและพิกัด GPS</div></div><span class="sub" id="mapStatus">พร้อมใช้งาน</span></div>
+   <div class="map-tools">
+    <select id="mapLayer" aria-label="ชนิดแผนที่"><option value="satellite">ภาพถ่ายดาวเทียม</option><option value="street">แผนที่ถนน</option></select>
+    <select id="severityFilter" aria-label="กรองระดับ"><option value="all">ทุกระดับความรุนแรง</option><option value="สูง">ระดับสูง</option><option value="ปานกลาง">ระดับปานกลาง</option><option value="ต่ำ">ระดับต่ำ</option></select>
+    <button class="btn small" id="resetMap">แสดงประเทศไทย</button>
+   </div>
+   <div id="map"></div>
+   <div class="map-legend"><span><i class="dot" style="background:#ff6262"></i>สูง</span><span><i class="dot" style="background:#f6bd60"></i>ปานกลาง</span><span><i class="dot" style="background:#36d399"></i>ต่ำ</span><span>● จุดรายงานจากผู้ใช้</span></div>
+   <p class="map-note">แผนที่ดาวเทียมใช้ข้อมูลภาพจาก Esri และแผนที่ถนนจาก OpenStreetMap ต้องเชื่อมต่ออินเทอร์เน็ต จุดสีต่าง ๆ มาจากรายงานที่บันทึกในอุปกรณ์นี้ ไม่ใช่การตรวจจับขยะจากดาวเทียมโดยอัตโนมัติ</p>
+  </section>
+
+  <section class="panel">
+   <div class="panel-head"><div><h2>📊 จังหวัดที่มีรายงานมากที่สุด</h2><div class="sub">จัดอันดับจากจำนวนรายงานที่ผู้ใช้บันทึก</div></div></div>
+   <div id="provinceRanking" class="rank-list"><div class="empty">ยังไม่มีข้อมูลรายงาน</div></div>
+  </section>
+
+  <section class="panel">
+   <div class="panel-head"><div><h2>📷 เครื่องมือจำแนกประเภทขยะ</h2><div class="sub">บันทึกภาพและเลือกประเภทเพื่อรับคำแนะนำการคัดแยก</div></div></div>
+   <div class="scanner">
+    <div class="scanner-box"><div>เลือกรูปขยะจากกล้องหรือคลังภาพ</div><input type="file" id="wastePhoto" accept="image/*" capture="environment"><img id="scanPreview" class="photo-preview" alt="ภาพตัวอย่างขยะ"></div>
+    <div class="scanner-result" id="scanAdvice">ระบบนี้ยังไม่มีโมเดล AI สำหรับจำแนกภาพจริง กรุณาเลือกประเภทขยะด้วยตนเองเพื่อดูคำแนะนำที่ถูกต้อง</div>
+   </div>
+   <div class="form-grid" style="margin-top:10px">
+    <label class="field">ประเภทขยะ<select id="scanType"><option value="พลาสติก">พลาสติก</option><option value="กระดาษ">กระดาษ</option><option value="โลหะ">โลหะ</option><option value="แก้ว">แก้ว</option><option value="ขยะอินทรีย์">ขยะอินทรีย์</option><option value="ขยะทั่วไป">ขยะทั่วไป</option><option value="ขยะอันตราย">ขยะอันตราย</option><option value="ขยะอิเล็กทรอนิกส์">ขยะอิเล็กทรอนิกส์</option></select></label>
+    <div class="field" style="justify-content:end"><button class="btn primary" id="classifyBtn">ดูคำแนะนำการแยกขยะ</button></div>
+   </div>
+  </section>
+ </div>
+
+ <aside class="side">
+  <section class="panel">
+   <div class="panel-head"><div><h2>📝 รายงานจุดพบขยะ</h2><div class="sub">เพิ่มข้อมูลเพื่อสร้างแผนที่จุดเสี่ยง</div></div></div>
+   <form id="reportForm">
+    <div class="form-grid">
+     <label class="field full">ชื่อพื้นที่ / สถานที่<input id="placeName" placeholder="เช่น ริมคลอง ใกล้ตลาด" required maxlength="90"></label>
+     <label class="field">จังหวัด<select id="province" required></select></label>
+     <label class="field">ประเภทขยะ<select id="wasteType"><option>ขยะทั่วไป</option><option>พลาสติก</option><option>ขยะอินทรีย์</option><option>กระดาษ</option><option>โลหะ</option><option>แก้ว</option><option>ขยะอันตราย</option><option>ขยะอิเล็กทรอนิกส์</option></select></label>
+     <label class="field">ระดับที่พบ<select id="severity"><option>ต่ำ</option><option>ปานกลาง</option><option>สูง</option></select></label>
+     <label class="field">ปริมาณโดยประมาณ<select id="amount"><option>เล็กน้อย</option><option>ปานกลาง</option><option>จำนวนมาก</option></select></label>
+     <label class="field full">รายละเอียด<textarea id="description" placeholder="อธิบายสภาพพื้นที่หรือชนิดขยะเพิ่มเติม" maxlength="300"></textarea></label>
+    </div>
+    <div class="gps-row"><button type="button" class="btn small" id="getGPS">◎ ใช้ GPS ปัจจุบัน</button><span class="gps-status" id="gpsStatus">ยังไม่ได้ระบุพิกัด</span></div>
+    <div class="form-grid">
+     <label class="field">ละติจูด<input id="lat" type="number" step="any" placeholder="Latitude" required></label>
+     <label class="field">ลองจิจูด<input id="lng" type="number" step="any" placeholder="Longitude" required></label>
+    </div>
+    <label class="field" style="margin-top:9px">แนบภาพประกอบ (ไม่บังคับ)<input id="reportPhoto" type="file" accept="image/*" capture="environment"></label>
+    <img id="reportPreview" class="photo-preview" alt="ภาพประกอบรายงาน">
+    <button class="btn primary" style="width:100%;margin-top:12px" type="submit">＋ บันทึกรายงาน</button>
+   </form>
+  </section>
+
+  <section class="panel">
+   <div class="panel-head"><div><h2>📋 รายงานล่าสุด</h2><div class="sub">ข้อมูลที่บันทึกไว้ในอุปกรณ์นี้</div></div><button class="btn small danger" id="clearReports">ล้างข้อมูล</button></div>
+   <div id="reportList" class="report-list"><div class="empty">ยังไม่มีรายงาน</div></div>
+  </section>
+ </aside>
+</div>
+<footer>SmartWaste Thailand · Prototype 2.0 · ข้อมูลรายงานถูกเก็บไว้ในเบราว์เซอร์เครื่องนี้</footer>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const PROVINCES = ["กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"];
+const KEY="smartwaste_reports_v2";
+let reports=JSON.parse(localStorage.getItem(KEY)||"[]"), gpsPoint=null, markers=[];
+const $=id=>document.getElementById(id);
+$("province").innerHTML='<option value="">เลือกจังหวัด</option>'+PROVINCES.map(p=>`<option>${p}</option>`).join("");
+const map=L.map("map",{zoomControl:true}).setView([13.2,101],6);
+const layers={
+ satellite:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Tiles © Esri"}),
+ street:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"})
+};
+layers.satellite.addTo(map);
+const markerLayer=L.layerGroup().addTo(map);
+const colors={"สูง":"#ff6262","ปานกลาง":"#f6bd60","ต่ำ":"#36d399"};
+const wasteInfo={
+ "พลาสติก":"ล้างคราบอาหารและของเหลวออก แยกชนิดพลาสติกก่อนส่งรีไซเคิล",
+ "กระดาษ":"แยกกระดาษแห้งออกจากกระดาษเปื้อนอาหารและกระดาษเคลือบ",
+ "โลหะ":"เทของเหลวออกและแยกกระป๋องอะลูมิเนียม/เหล็ก",
+ "แก้ว":"แยกขวดแก้วตามประเภท ระวังแตกและห่อให้ปลอดภัย",
+ "ขยะอินทรีย์":"แยกเศษอาหารออกจากบรรจุภัณฑ์ สามารถนำไปทำปุ๋ยได้",
+ "ขยะทั่วไป":"ลดการปนเปื้อนและทิ้งตามระบบจัดเก็บของท้องถิ่น",
+ "ขยะอันตราย":"ห้ามเทรวมกับขยะทั่วไป ควรส่งจุดรับขยะอันตรายของหน่วยงานท้องถิ่น",
+ "ขยะอิเล็กทรอนิกส์":"แยกแบตเตอรี่และอุปกรณ์อิเล็กทรอนิกส์ ส่งจุดรับ e-waste โดยเฉพาะ"
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(reports))}
+function safe(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+ $("totalReports").textContent=reports.length;
+ $("provinceCount").textContent=new Set(reports.map(r=>r.province)).size;
+ $("highReports").textContent=reports.filter(r=>r.severity==="สูง").length;
+ $("scanCount").textContent=Number(localStorage.getItem("smartwaste_scans")||0);
+ markerLayer.clearLayers();
+ const filter=$("severityFilter").value;
+ reports.forEach(r=>{
+  if(filter!=="all"&&r.severity!==filter)return;
+  const marker=L.circleMarker([r.lat,r.lng],{radius:r.severity==="สูง"?10:8,color:colors[r.severity],fillColor:colors[r.severity],fillOpacity:.85,weight:2}).addTo(markerLayer);
+  marker.bindPopup(`<b>${safe(r.place)}</b><br>${safe(r.province)} · ${safe(r.type)}<br>ระดับ: ${safe(r.severity)}<br>ปริมาณ: ${safe(r.amount)}<br><small>${new Date(r.date).toLocaleString("th-TH")}</small>`);
+ });
+ $("reportList").innerHTML=reports.length?reports.slice().reverse().slice(0,30).map(r=>`<div class="report"><div class="emoji">🗑️</div><div class="report-main"><b>${safe(r.place)}</b><p>${safe(r.province)} · ${safe(r.type)} · ${safe(r.amount)}</p><p>${new Date(r.date).toLocaleString("th-TH")}</p></div><span class="severity ${r.severity==="สูง"?"sev-high":r.severity==="ปานกลาง"?"sev-med":"sev-low"}">${safe(r.severity)}</span></div>`).join(""):'<div class="empty">ยังไม่มีรายงานขยะ</div>';
+ const counts={};reports.forEach(r=>counts[r.province]=(counts[r.province]||0)+1);
+ const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8), max=sorted[0]?.[1]||1;
+ $("provinceRanking").innerHTML=sorted.length?sorted.map(([p,n],i)=>`<div class="rank"><span class="rank-num">${i+1}</span><div><div>${safe(p)}</div><div class="bar"><i style="width:${n/max*100}%"></i></div></div><b>${n} จุด</b></div>`).join(""):'<div class="empty">ยังไม่มีข้อมูลรายงาน</div>';
+}
+function notify(text){$("mapStatus").textContent=text;setTimeout(()=>$("mapStatus").textContent="พร้อมใช้งาน",2600)}
+function setGPS(lat,lng){gpsPoint={lat,lng};$("lat").value=lat.toFixed(6);$("lng").value=lng.toFixed(6);$("gpsStatus").textContent=`${lat.toFixed(5)}, ${lng.toFixed(5)}`;map.setView([lat,lng],15);L.circleMarker([lat,lng],{radius:9,color:"#4bb8ed",fillColor:"#4bb8ed",fillOpacity:1}).addTo(map).bindPopup("ตำแหน่ง GPS ของคุณ").openPopup()}
+function locate(){if(!navigator.geolocation){notify("เบราว์เซอร์ไม่รองรับ GPS");return}notify("กำลังขอตำแหน่ง GPS...");navigator.geolocation.getCurrentPosition(pos=>{setGPS(pos.coords.latitude,pos.coords.longitude);notify("ระบุตำแหน่งสำเร็จ")},err=>notify(err.code===1?"ไม่ได้รับอนุญาตให้ใช้ GPS":"ไม่สามารถระบุตำแหน่งได้"),{enableHighAccuracy:true,timeout:12000,maximumAge:30000})}
+$("getGPS").onclick=locate;$("locateTop").onclick=locate;
+$("mapLayer").onchange=e=>{Object.values(layers).forEach(l=>map.removeLayer(l));layers[e.target.value].addTo(map)};
+$("severityFilter").onchange=render;
+$("resetMap").onclick=()=>map.setView([13.2,101],6);
+$("reportForm").onsubmit=e=>{
+ e.preventDefault();
+ const lat=Number($("lat").value),lng=Number($("lng").value);
+ if(!Number.isFinite(lat)||!Number.isFinite(lng)||lat<5||lat>21||lng<97||lng>106){alert("กรุณาระบุพิกัดที่อยู่ในประเทศไทยให้ถูกต้อง");return}
+ const r={id:Date.now(),place:$("placeName").value.trim(),province:$("province").value,type:$("wasteType").value,severity:$("severity").value,amount:$("amount").value,description:$("description").value.trim(),lat,lng,date:new Date().toISOString()};
+ if(!r.province){alert("กรุณาเลือกจังหวัด");return}
+ reports.push(r);save();render();e.target.reset();$("gpsStatus").textContent="ยังไม่ได้ระบุพิกัด";$("reportPreview").style.display="none";notify("บันทึกรายงานแล้ว");map.setView([lat,lng],13);
+};
+$("clearReports").onclick=()=>{if(confirm("ต้องการลบรายงานทั้งหมดในอุปกรณ์นี้หรือไม่?")){reports=[];save();render();notify("ลบข้อมูลแล้ว")}};
+$("classifyBtn").onclick=()=>{const t=$("scanType").value;$("scanAdvice").innerHTML=`<strong>${safe(t)}</strong><br>${safe(wasteInfo[t])}<br><small>หมายเหตุ: คำแนะนำนี้อ้างอิงจากประเภทที่คุณเลือก ไม่ใช่ผลวิเคราะห์ภาพด้วย AI</small>`;localStorage.setItem("smartwaste_scans",Number(localStorage.getItem("smartwaste_scans")||0)+1);$("scanCount").textContent=localStorage.getItem("smartwaste_scans")};
+function preview(input,img){input.onchange=()=>{const f=input.files?.[0];if(!f)return;if(!f.type.startsWith("image/"))return alert("กรุณาเลือกไฟล์รูปภาพ");img.src=URL.createObjectURL(f);img.style.display="block"}}
+preview($("wastePhoto"),$("scanPreview"));preview($("reportPhoto"),$("reportPreview"));
+$("exportBtn").onclick=()=>{if(!reports.length)return alert("ยังไม่มีข้อมูลสำหรับส่งออก");const rows=[["สถานที่","จังหวัด","ประเภทขยะ","ระดับ","ปริมาณ","ละติจูด","ลองจิจูด","วันที่"],...reports.map(r=>[r.place,r.province,r.type,r.severity,r.amount,r.lat,r.lng,r.date])];const csv="\uFEFF"+rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="smartwaste-reports.csv";a.click();URL.revokeObjectURL(a.href)};
+render();
+</script>
+</body>
+</html>
