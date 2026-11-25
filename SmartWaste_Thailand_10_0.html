@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b8a5a"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png">
+<title>SmartWaste Thailand</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"><link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<style>
+:root{--bg:#f4f8f5;--card:#fff;--tx:#18261f;--mu:#5d7168;--ln:#dfe9e2;--pr:#1b8a5a;--pr2:#d6f2e3;--am:#f0a31a;--rd:#e5484d;--bl:#2a7de1;--sh:0 1px 3px #0002,0 4px 14px #0001}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1714;--card:#17231f;--tx:#e6f1ea;--mu:#93a9a0;--ln:#26382f;--pr:#3ddc97;--pr2:#17382b;--sh:0 1px 3px #0005}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Kanit,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;border:0}
+.top{position:sticky;top:0;z-index:20;background:var(--pr);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:10px}
+.top h1{font-size:19px;margin:0;font-weight:500;flex:1}.top small{display:block;font-weight:300;font-size:11px;opacity:.85}
+.ib{background:#fff2;color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px}
+main{max-width:720px;margin:auto;padding:14px}
+.view{display:none;animation:in .25s}.view.on{display:block}@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.card h2{font-size:16px;margin:0 0 10px;font-weight:500}.mu{color:var(--mu);font-size:12px}
+.hero{background:linear-gradient(135deg,#1b8a5a,#2fbf8a);color:#fff}.hero .row{display:flex;align-items:center;gap:12px}
+.av{width:54px;height:54px;border-radius:16px;background:#fff3;display:grid;place-items:center;font-size:30px}
+.pill{background:#fff;color:#1b8a5a;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;margin-left:auto}
+.xp{height:9px;background:#fff4;border-radius:9px;margin:14px 0 5px;overflow:hidden}.xp i{display:block;height:100%;background:#fff;border-radius:9px;transition:width .5s}
+.hero .mu{color:#fffd}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;text-align:center}.stats b{display:block;font-size:19px}.stats span{font-size:10px;opacity:.9}
+.cta{width:100%;display:flex;align-items:center;gap:14px;background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--sh);margin-bottom:14px;text-align:left}
+.cta .big{width:54px;height:54px;border-radius:16px;background:var(--pr);color:#fff;display:grid;place-items:center;font-size:26px}.cta b{font-size:16px;font-weight:500;display:block}
+.bins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.bin{border-radius:14px;padding:10px 4px;text-align:center;color:#fff;font-size:11px;line-height:1.3}.bin i{font-style:normal;font-size:22px;display:block}
+.hs{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.cc{min-width:92px;background:var(--bg);border-radius:14px;padding:10px;text-align:center;font-size:12px}.cc i{font-style:normal;font-size:24px;display:block}.cc small{color:var(--mu);font-size:10px}
+.bar{height:6px;background:var(--ln);border-radius:6px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:var(--am)}
+.btn{background:var(--pr);color:#fff;border-radius:22px;padding:11px 20px;font-weight:500}.btn.o{background:transparent;color:var(--pr);border:1px solid var(--ln)}.btn.r{background:transparent;color:var(--rd);border:1px solid var(--ln)}.btn.sm{padding:7px 14px;font-size:13px}.btn:disabled{opacity:.5}
+.vf{position:relative;background:#000;border-radius:18px;overflow:hidden;aspect-ratio:3/4;max-height:56vh;width:100%;display:grid;place-items:center;margin-bottom:12px}
+.vf video,.vf img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.vf .ph{color:#fff9;text-align:center;font-size:13px}.vf .ph b{display:block;font-size:46px}
+.vf:after{content:"";position:absolute;inset:18% 14%;border:2px solid #fff8;border-radius:20px;pointer-events:none}
+.live{position:absolute;left:10px;right:10px;bottom:10px;background:#000a;color:#fff;border-radius:12px;padding:7px 10px;font-size:12px;z-index:2;display:none;text-align:center}
+.ctr{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:12px}
+.shut{width:66px;height:66px;border-radius:50%;background:#fff;border:5px solid var(--pr);box-shadow:var(--sh)}.shut:disabled{opacity:.4}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.chip{background:var(--bg);border:1px solid var(--ln);border-radius:20px;padding:6px 12px;font-size:13px}.chip.on{background:var(--pr2);border-color:var(--pr);color:var(--pr);font-weight:500}
+.res{display:none}.res.on{display:block}.conf{height:7px;background:var(--ln);border-radius:7px;overflow:hidden;margin:6px 0}.conf i{display:block;height:100%;background:var(--pr)}
+.tip{background:var(--pr2);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.5;margin:8px 0}
+#map{height:46vh;border-radius:16px;margin-bottom:12px;z-index:1}
+.fs{display:flex;gap:7px;overflow-x:auto;margin-bottom:10px;scrollbar-width:none}.fs .chip{white-space:nowrap}
+.rep{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--ln);align-items:center}.rep:first-child{border:0}.rep p{margin:2px 0 0;font-size:12px;color:var(--mu)}.sv{margin-left:auto;font-size:11px;padding:3px 9px;border-radius:12px;white-space:nowrap}
+.s1{background:#1b8a5a22;color:var(--pr)}.s2{background:#f0a31a2a;color:#b87800}.s3{background:#e5484d22;color:var(--rd)}
+.fab{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:25;background:var(--pr);color:#fff;border-radius:18px;padding:14px 18px;box-shadow:0 6px 18px #0004;font-weight:500;display:none}
+.bg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.bd{text-align:center;padding:12px 4px;border-radius:14px;background:var(--bg);font-size:11px;opacity:.4;filter:grayscale(1)}.bd.on{opacity:1;filter:none;background:var(--pr2)}.bd i{font-style:normal;font-size:28px;display:block}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -2px 12px #0002}
+nav button{background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--mu);padding:2px 14px}
+nav button span{font-size:20px;padding:3px 20px;border-radius:16px;transition:.2s}nav button.on{color:var(--pr);font-weight:500}nav button.on span{background:var(--pr2)}
+dialog{border:0;border-radius:24px 24px 0 0;padding:18px;width:100%;max-width:720px;margin:auto auto 0;background:var(--card);color:var(--tx);max-height:92vh}dialog::backdrop{background:#0008}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu)}.f.w{grid-column:1/-1}
+.f input,.f select,.f textarea,.in{background:var(--bg);border:1px solid var(--ln);border-radius:12px;padding:10px;width:100%;color:var(--tx)}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:#222;color:#fff;border-radius:22px;padding:10px 18px;font-size:13px;opacity:0;transition:.3s;z-index:99;max-width:90%;text-align:center;pointer-events:none}.toast.on{opacity:1;transform:translateX(-50%)}
+.leaflet-popup-content{font-family:Kanit}
+.me{width:18px;height:18px;border-radius:50%;background:#2a7de1;border:3px solid #fff;animation:pl 2s infinite}@keyframes pl{0%{box-shadow:0 0 0 0 #2a7de1aa}80%,100%{box-shadow:0 0 0 16px #2a7de100}}
+#pickBar{display:none;position:fixed;top:calc(66px + env(safe-area-inset-top));left:12px;right:12px;z-index:40;background:#222;color:#fff;border-radius:14px;padding:10px 14px;font-size:13px;align-items:center;gap:10px}
+.rep{cursor:pointer}#gstat{font-size:12px;color:var(--pr);margin:-4px 0 8px;min-height:0}
+nav button{padding:2px 6px}nav button span{padding:3px 14px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.ch h2{margin:0!important}
+.nw{display:block;padding:10px 0;border-top:1px solid var(--ln);text-decoration:none;color:var(--tx)}.nw:first-child{border:0}.nw b{display:block;font-size:14px;font-weight:500;line-height:1.45}.nw span{font-size:11px;color:var(--mu)}
+.z3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.z3 div{background:var(--bg);border-radius:12px;padding:10px 4px}.z3 b{display:block;font-size:15px}.z3 span{font-size:10px;color:var(--mu)}
+.pc{display:grid;grid-template-columns:34px 1fr;gap:4px 10px;font-size:12px;align-items:center}.pc b{background:var(--pr2);color:var(--pr);border-radius:8px;text-align:center;padding:3px 0}
+.nw2{display:flex;align-items:flex-start;border-top:1px solid var(--ln)}.nw2:first-child{border:0}.nw2 .nw{flex:1;border:0}.stb{background:none;font-size:20px;padding:10px 4px;color:var(--am)}
+.bars{display:flex;align-items:flex-end;gap:2px;height:64px;margin:6px 0}.bars i{flex:1;border-radius:3px 3px 0 0;min-width:3px}
+.leaflet-popup-content button{font-family:Kanit;font-size:12px;border:1px solid #ccc;border-radius:12px;background:#f4f8f5;padding:3px 8px;margin:2px 2px 0 0;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="top"><div style="font-size:26px">♻️</div><h1>SmartWaste<small>คัดแยกขยะอัจฉริยะ · ประเทศไทย</small></h1><button class="ib" id="loc" aria-label="ตำแหน่ง">◎</button></div>
+<main>
+<!-- HOME -->
+<section class="view on" id="v-home">
+ <div id="alertBar" class="tip" style="display:none;background:#e5484d22;margin-bottom:12px"></div>
+ <div class="card hero">
+  <div class="row"><div class="av">🌱</div><div><b id="ttl" style="font-size:17px;font-weight:500"></b><div class="mu">นักพิทักษ์สิ่งแวดล้อม</div></div><span class="pill" id="lv"></span></div>
+  <div class="xp"><i id="xpf"></i></div><div class="mu" id="xpt"></div>
+  <div class="stats"><div><b id="sS">0</b><span>สแกน</span></div><div><b id="sX">0</b><span>XP</span></div><div><b id="sK">0</b><span>วันต่อเนื่อง</span></div><div><b id="sR">0</b><span>รายงาน</span></div></div>
+ </div>
+ <button class="cta" id="goScan"><div class="big">📷</div><div><b>สแกนขยะด้วย AI</b><span class="mu">ถ่ายรูปแล้วรู้ทันทีว่าทิ้งถังไหน</span></div></button>
+ <button class="cta" id="goWatch"><div class="big" style="background:#2a7de1">🌏</div><div><b>มลพิษและข่าวสิ่งแวดล้อมวันนี้</b><span class="mu">คุณภาพอากาศ · ภาพดาวเทียม · เขตเสี่ยงขยะ</span></div></button>
+ <div class="card"><h2>🎯 ภารกิจวันนี้</h2><div id="ql"></div><span id="qt" hidden></span><i id="qf" hidden></i></div>
+ <div class="card"><h2>🔎 ทิ้งยังไงดี?</h2><input class="in" id="wq" placeholder="พิมพ์ชื่อสิ่งของ เช่น ถ่านไฟฉาย กล่องนม โฟม"><div id="wr" style="margin-top:8px"></div></div>
+ <div class="card"><h2>🗑️ ถังขยะ 4 สี</h2><div class="bins">
+  <div class="bin" style="background:#2e9e5b"><i>🍃</i>เขียว<br>เศษอาหาร</div><div class="bin" style="background:#e8a900"><i>♻️</i>เหลือง<br>รีไซเคิล</div><div class="bin" style="background:#2a7de1"><i>🗑️</i>น้ำเงิน<br>ทั่วไป</div><div class="bin" style="background:#e5484d"><i>☣️</i>แดง<br>อันตราย</div></div></div>
+ <div class="card"><h2>♻️ รหัสพลาสติก (เลขใต้สัญลักษณ์ลูกศร)</h2><div class="pc"><b>1 PET</b><span>ขวดน้ำ/น้ำอัดลม · รีไซเคิลง่าย ถอดฝาและฉลากถ้าทำได้</span><b>2 HDPE</b><span>ขวดนม ขวดแชมพู · รีไซเคิลได้</span><b>3 PVC</b><span>ท่อ ฟิล์มบางชนิด · รีไซเคิลยาก</span><b>4 LDPE</b><span>ถุงพลาสติก ฟิล์ม · ส่งเฉพาะจุดรับ</span><b>5 PP</b><span>กล่องอาหาร ฝาขวด · รีไซเคิลได้</span><b>6 PS</b><span>โฟม · รีไซเคิลยาก มักทิ้งถังน้ำเงิน</span><b>7</b><span>อื่น ๆ/ผสม · มักรีไซเคิลไม่ได้</span></div><p class="mu">ความสามารถรับรีไซเคิลต่างกันตามเทศบาล/จุดรับในพื้นที่</p></div>
+ <div class="card"><h2>ความชำนาญแต่ละประเภท</h2><div class="hs" id="mast"></div></div>
+</section>
+
+<!-- SCAN -->
+<section class="view" id="v-scan">
+ <div class="vf"><div class="ph" id="ph"><b>📷</b>เปิดกล้องหรือเลือกรูป</div><video id="cam" autoplay playsinline muted></video><img id="pv" alt=""><div class="live" id="live"></div></div>
+ <div class="ctr"><button class="btn o sm" id="cOpen">📷 เปิดกล้อง</button><button class="shut" id="cShot" disabled aria-label="ถ่ายภาพ"></button><label class="btn o sm" style="cursor:pointer">🖼️ รูปภาพ<input type="file" id="file" accept="image/*" hidden></label></div>
+ <div class="mu" style="display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:10px">🔍<input type="range" id="zm" min="1" max="3" step="0.1" value="1" style="flex:1;max-width:200px"><label style="display:flex;gap:5px;align-items:center"><input type="checkbox" id="auto"> ถ่ายเองเมื่อนิ่ง</label></div>
+ <div class="mu" id="ai" style="text-align:center;margin-bottom:12px">กำลังเตรียม AI…</div>
+ <div class="card res" id="res">
+  <div class="mu" id="raw"></div><div class="mu" id="qual" style="color:var(--am)"></div><h2 id="sug" style="font-size:20px;margin:4px 0"></h2>
+  <div class="conf"><i id="cf"></i></div><div class="mu" id="cfT"></div><div class="mu" id="votes" style="margin-top:8px;line-height:1.7"></div><button class="btn o sm" id="boost" style="display:none;margin-top:8px">⚡ ตรวจซ้ำด้วยโหมดแม่นยำสูง</button>
+  <div class="mu" style="margin-top:12px">AI ทายผิด? แตะเลือกประเภทที่ถูกต้อง</div><div class="chips" id="chips"></div>
+  <label class="mu" style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" id="dirty"> เปื้อนอาหาร/น้ำมัน ล้างไม่ออก</label><button class="btn o sm" id="multi" style="margin-top:8px">🧺 สแกนหลายชิ้นในภาพ</button><div class="tip" id="tip"></div>
+  <button class="btn" style="width:100%" id="ok">✓ ยืนยันและรับ +20 XP</button>
+ </div>
+</section>
+
+<!-- MAP -->
+<section class="view" id="v-map">
+ <div id="pickBar"><span style="flex:1">👆 แตะบนแผนที่เพื่อเลือกตำแหน่งรายงาน</span><button class="btn sm" id="pickX">ยกเลิก</button></div>
+ <div id="map"></div><div id="gstat"></div>
+ <label class="mu" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">📅 วันที่ภาพ NASA <input type="date" id="gd" class="in" style="width:auto;padding:6px 10px"></label><div class="mu" id="imgInfo" style="line-height:1.6;margin-bottom:6px"></div><div id="wbRow" class="mu" style="display:none;gap:8px;align-items:center;margin-bottom:8px">🕘 ย้อนดูรุ่นภาพ<select id="wbSel" class="in" style="width:auto;padding:6px"></select></div><div id="s2Row" class="mu" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">🛰️ ฉาก Sentinel-2 <select id="s2Sel" class="in" style="width:auto;padding:6px"></select><button class="btn o sm" id="s2Re">ค้นหาที่กลางจอ</button></div><div id="cmpRow" class="mu" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">↔ เทียบรุ่นภาพ Esri<select id="cmpSel" class="in" style="width:auto;padding:6px"></select>กับรุ่นล่าสุด</div><div class="mu" id="msr" style="display:none;margin-bottom:8px"></div><div id="blRow" class="mu" style="display:none;gap:8px;align-items:center;margin-bottom:8px">◐ ความโปร่งภาพ NASA<input type="range" id="blR" min="0.1" max="1" step="0.05" value="0.55" style="flex:1"></div><div id="pmLeg" style="display:none;margin-bottom:8px"><div style="height:10px;border-radius:6px;background:linear-gradient(90deg,#2e9e5b 3%,#d4a900 10%,#ff8c1a 16%,#e5484d 43%,#8f3fbf 71%,#7e0023 100%)"></div><div class="mu" style="font-size:10px;margin-top:3px">PM2.5 µg/ลบ.ม.: 0–12 ดี · 12–35 ปานกลาง · 35–55 เริ่มมีผล · 55–150 มีผลต่อสุขภาพ · 150+ อันตราย</div></div><div class="fs" id="mt"></div><div class="fs" id="mf"></div>
+ <div class="card"><h2>📋 รายงานล่าสุด</h2><div id="rl"></div></div>
+ <div class="card"><h2>📊 จังหวัดที่มีรายงานมากที่สุด</h2><div id="rk"></div></div>
+</section>
+
+<!-- WATCH -->
+<section class="view" id="v-watch">
+ <div class="card hero"><div class="mu" id="bDate"></div><h2 style="color:#fff;font-size:18px;margin:4px 0 12px">สรุปสิ่งแวดล้อมวันนี้</h2><div class="stats" style="grid-template-columns:repeat(3,1fr);margin-top:0"><div><b id="bAQ">–</b><span id="bAQn">AQI</span></div><div><b id="bKg">0</b><span>ขยะที่รายงาน (ประมาณ)</span></div><div><b id="bZ">0</b><span>เขตเสี่ยงสูงขึ้นไป</span></div></div></div>
+ <div class="card"><div class="ch"><h2>🌫️ คุณภาพอากาศตอนนี้</h2><button class="btn o sm" id="rfAQ">↻</button></div><div id="aq"><p class="mu">กำลังโหลด…</p></div></div>
+ <div class="card"><h2>☣️ ปริมาณขยะและเขตเสี่ยง</h2><div id="hz"></div></div>
+ <div class="card"><div class="ch"><h2>🌦️ อากาศและพยากรณ์ฝุ่น</h2><select id="wxP" class="in" style="width:auto;max-width:55%;padding:6px"></select></div><div id="wx"><p class="mu">กำลังโหลด…</p></div><div class="mu" style="margin-top:10px">🔔 แจ้งเตือนเมื่อ AQI ถึง <select id="alT" class="in" style="width:auto;padding:4px 8px"><option value="0">ปิด</option><option value="101">101 (เริ่มมีผล)</option><option value="151">151 (มีผลต่อสุขภาพ)</option></select> <span style="font-size:11px">(แจ้งเฉพาะตอนเปิดแอป)</span></div></div>
+ <div class="card"><div class="ch"><h2>📰 ข่าวสิ่งแวดล้อม</h2><button class="btn o sm" id="rfNews">↻</button></div><div class="fs" id="nc"></div><div style="display:flex;gap:8px;margin-bottom:8px"><input class="in" id="nq" placeholder="ค้นหา/ชื่อจังหวัด…"><select id="ns" class="in" style="width:auto"><option value="all">ข่าวไทย</option><option value="gl">ต่างประเทศ</option><option value="sv">⭐ ที่บันทึก</option></select></div><div id="news"></div></div>
+ <div class="card"><h2>🛰️ แหล่งข้อมูล</h2><p class="mu" style="line-height:1.7">ภาพดาวเทียมรายวันและจุดความร้อน: NASA GIBS (VIIRS) · คุณภาพอากาศ: Open-Meteo / CAMS · ข่าว: GDELT · แผนที่: OpenStreetMap, Esri</p></div>
+</section>
+
+<!-- ME -->
+<section class="view" id="v-me">
+ <div class="card"><h2>🏅 เหรียญรางวัล</h2><div class="bg" id="bgs"></div></div>
+ <div class="card"><h2>🤖 AI คัดแยกขยะ (โหวตหลายโมเดล)</h2>
+  <p class="mu" style="line-height:1.7">รวมผลจากโมเดลฟรีหลายตัว:<br>• <b>WasteWise</b> (YOLOv8 ฝึกกับภาพขยะ 8 คลาส, Apache-2.0)<br>• <b>CLIP</b> เข้าใจภาพ+ข้อความ แยกของได้ละเอียด (โหมดแม่นยำสูง)<br>• <b>MobileNet</b> ใช้ตรวจจับสดตอนส่องกล้อง<br>• <b>เรียนรู้จากคุณ</b> ทุกครั้งที่กดยืนยัน ภาพนั้นจะสอน AI บนเครื่องคุณ (ไม่ส่งออกไปไหน)</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="clipBtn">⚡ เปิดโหมดแม่นยำสูง (~150MB)</button><button class="btn r sm" id="knnClr">ลบที่ AI เรียนรู้ (<span id="kn">0</span>)</button></div>
+  <p class="mu">โหลดครั้งเดียวตอนมี Wi-Fi เบราว์เซอร์จะเก็บไว้ใช้ต่อ</p>
+  <div class="mu" style="margin-top:8px">โมเดลของคุณเองจาก Teachable Machine (ไม่บังคับ)</div>
+  <input class="in" id="tmUrl" placeholder="https://teachablemachine.withgoogle.com/models/xxxx/" style="margin-top:6px"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sm" id="tmLoad">โหลดโมเดลของฉัน</button><button class="btn o sm" id="tmReset">เลิกใช้</button></div></div>
+ <div class="card"><h2>📊 ความแม่นของ AI (จากที่คุณยืนยัน)</h2><div id="acc"></div><p class="mu" style="line-height:1.6">ทุกครั้งที่กดยืนยัน ระบบเทียบกับสิ่งที่ AI แต่ละตัวทาย เมื่อมี ≥5 ครั้ง จะเพิ่มน้ำหนักให้ตัวที่ถูกบ่อยและลดตัวที่ผิดบ่อยอัตโนมัติ (×0.5 ถึง ×1.5)</p><button class="btn r sm" id="accX">รีเซ็ตสถิติ</button></div>
+ <div class="card"><div class="ch"><h2>🕘 ประวัติการสแกน</h2><button class="btn o sm" id="hisX">ล้าง</button></div><div id="his"></div></div>
+ <div class="card"><h2>🔒 ความเป็นส่วนตัว</h2><p class="mu" style="line-height:1.8">• <b>รูปถ่าย</b>: AI ประมวลผลในเครื่อง ไม่อัปโหลดรูป (ไฟล์โมเดลดาวน์โหลดจาก Hugging Face/jsDelivr)<br>• <b>รายงาน คะแนน ประวัติ</b>: เก็บในเครื่องนี้เท่านั้น<br>• <b>พิกัด</b>: ส่งไปยัง Open-Meteo (อากาศ), OpenStreetMap Nominatim (ชื่อที่อยู่), Overpass (จุดขยะ/โรงงาน), Microsoft Planetary Computer (ภาพ Sentinel-2) เมื่อคุณใช้ฟีเจอร์นั้น<br>• <b>ข่าว</b>: คำค้นส่งไปยัง Google News (ผ่าน rss2json) และ GDELT<br>• <b>ภาพ NASA/Esri</b>: ขอแผนที่ตามพื้นที่ที่คุณดู<br>• คีย์ Mapbox/MapTiler (ถ้าใส่) เก็บในเครื่อง</p></div>
+ <div class="card"><h2>🗝️ ภาพดาวเทียมสดและคมกว่าเดิม (คีย์ของคุณเอง)</h2><p class="mu" style="line-height:1.6">ภาพฟรีที่ไม่ต้องสมัครอาจเก่ากว่า Google ถ้าต้องการภาพใหม่และคมกว่า ให้สมัครคีย์ฟรีของ Mapbox หรือ MapTiler แล้ววางที่นี่ (ภาพเป็นของผู้ให้บริการ มีโควต้าฟรีจำกัด และผมยังไม่ได้ทดสอบ URL ของ MapTiler กับคีย์จริง)</p><div style="display:flex;gap:8px"><select id="keyP" class="in" style="width:auto"><option value="mapbox">Mapbox</option><option value="maptiler">MapTiler</option></select><input id="keyV" class="in" placeholder="วางคีย์ / access token"></div><button class="btn sm" id="keySave" style="margin-top:8px">บันทึก</button><p class="mu">คีย์เก็บในเครื่องนี้เท่านั้น แต่ผู้ที่เปิดเครื่องดูได้ ควรจำกัดโดเมนที่ใช้คีย์ในหน้าผู้ให้บริการ</p></div>
+ <div class="card"><h2>⭐ จุดที่ฉันติดตาม</h2><div id="wp"></div></div>
+ <div class="card"><h2>ข้อมูลของฉัน</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn o sm" id="exp">⇩ ส่งออก CSV</button><button class="btn o sm" id="expG">⇩ GeoJSON</button><button class="btn o sm" id="bak">💾 สำรองข้อมูล</button><label class="btn o sm" style="cursor:pointer">♻️ กู้คืน<input type="file" id="rst" accept="application/json" hidden></label><button class="btn sm" id="inst" style="display:none">📲 ติดตั้งแอป</button><button class="btn r sm" id="clr">ล้างรายงาน</button></div><p class="mu">ข้อมูลทั้งหมดเก็บในเครื่องนี้เท่านั้น</p></div>
+</section>
+</main>
+
+<button class="fab" id="fab">＋ รายงานขยะ</button>
+<nav>
+ <button data-v="home" class="on"><span>🏠</span>หน้าหลัก</button><button data-v="scan"><span>📷</span>สแกน</button><button data-v="map"><span>🗺️</span>แผนที่</button><button data-v="watch"><span>🌏</span>เฝ้าระวัง</button><button data-v="me"><span>👤</span>โปรไฟล์</button>
+</nav>
+
+<dialog id="dlg"><form id="rf" method="dialog">
+ <h2 style="margin:0 0 12px;font-weight:500">📝 รายงานจุดพบขยะ</h2>
+ <div class="fg">
+  <label class="f w">สถานที่<input id="pl" required maxlength="90" placeholder="เช่น ริมคลอง ใกล้ตลาด"></label>
+  <label class="f">จังหวัด<select id="pv2" required></select></label>
+  <label class="f">ประเภทขยะ<select id="wt"></select></label>
+  <label class="f">ระดับ<select id="sev"><option>ต่ำ</option><option>ปานกลาง</option><option>สูง</option></select></label>
+  <label class="f">ปริมาณ<select id="am"><option>เล็กน้อย</option><option>ปานกลาง</option><option>จำนวนมาก</option></select></label><label class="f">น้ำหนักประมาณ (กก.)<input id="kg" type="number" min="0" step="any" placeholder="5"></label>
+  <label class="f w">รายละเอียด<textarea id="ds" maxlength="300" rows="2"></textarea></label>
+  <label class="f">ละติจูด<input id="lat" type="number" step="any" required></label><label class="f">ลองจิจูด<input id="lng" type="number" step="any" required></label>
+  <button type="button" class="btn o sm f w" id="pickMap">🗺️ เลือกตำแหน่งบนแผนที่ดาวเทียม</button><div class="mu f w" id="gnote"></div>
+  <label class="f w">แนบรูป (AI ช่วยเลือกประเภทให้)<input type="file" id="rph" accept="image/*" capture="environment"></label><img id="rpv" alt="" style="display:none;width:100%;max-height:150px;object-fit:cover;border-radius:12px;grid-column:1/-1">
+ </div>
+ <div style="display:flex;gap:8px;margin-top:14px"><button type="button" class="btn o" id="gps">◎ ใช้ GPS</button><button type="button" class="btn o" id="cancel">ยกเลิก</button><button class="btn" style="flex:1" type="submit">บันทึก</button></div>
+</form></dialog>
+<dialog id="ob" style="text-align:center"><div id="obc"></div><div style="display:flex;gap:8px;margin-top:14px"><button type="button" class="btn o" id="obS">ข้าม</button><button type="button" class="btn" style="flex:1" id="obN">ถัดไป</button></div></dialog>
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-side-by-side@2.2.0/index.js"></script><script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script><script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script><script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),RK="smartwaste_reports_v2",PK="smartwaste_player_v3";
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const PROV=["กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"];
+
+// ประเภทขยะ + ถังสี + คีย์เวิร์ดจากคลาส ImageNet/ภาษาอังกฤษ (เรียงลำดับความสำคัญ)
+const CATS=[
+{n:"แก้ว",i:"🫙",bin:"ถังเหลือง (รีไซเคิล)",t:"ล้างให้สะอาด ห่อเศษแก้วแตกด้วยกระดาษก่อนทิ้ง",k:/glass|beer bottle|wine bottle|red wine|goblet|wine|vase|perfume|cocktail|whiskey|beaker|jar/},
+{n:"ขยะอันตราย",i:"☣️",bin:"ถังแดง (ขยะอันตราย)",t:"ห้ามทิ้งรวม นำไปจุดรับขยะอันตรายของเทศบาล/ห้างสรรพสินค้า",k:/pill bottle|syringe|lighter|spray|aerosol|oil filter|match|paint|lipstick|medicine|chemical|bleach|hazard|toxic|battery|bulb|lamp/},
+{n:"ขยะอิเล็กทรอนิกส์",i:"🔋",bin:"จุดรับ e-waste",t:"ถอดแบตเตอรี่ออก แล้วนำไปจุดรับ e-waste ห้ามทิ้งถังทั่วไป",k:/cellular|phone|ipod|mouse|remote|laptop|computer|keyboard|monitor|screen|desktop|hard disc|modem|radio|joystick|printer|speaker|player|charger|drill|digital|projector|television|reflex|camera|hair dryer|microwave|toaster|router|plug|e-waste|electronic|cable/},
+{n:"ขยะอินทรีย์",i:"🍃",bin:"ถังเขียว (เศษอาหาร)",t:"แยกเศษอาหารออกจากบรรจุภัณฑ์ นำไปทำปุ๋ยหมักได้",k:/banana|orange|lemon|strawberry|pineapple|pomegranate|fig|granny smith|apple|broccoli|cauliflower|cucumber|mushroom|pizza|hotdog|bagel|pretzel|burger|corn|artichoke|cabbage|pepper|squash|zucchini|acorn|food|organic|meat|bread|plate|custard|potpie|carbonara|guacamole|trifle|ice cream|leaf|jackfruit|bell/},
+{n:"โลหะ",i:"🥫",bin:"ถังเหลือง (รีไซเคิล)",t:"เทของเหลวออก บีบกระป๋องให้แบน แยกอะลูมิเนียม/เหล็ก",k:/milk can|\btin\b|\bcan\b|metal|aluminium|aluminum|steel|pot\b|pan\b|wok|frying|caldron|cleaver|ladle|nail|screw|padlock|chain|tin can|beer can|barrel|cup/},
+{n:"กระดาษ",i:"📄",bin:"ถังเหลือง (รีไซเคิล)",t:"แยกกระดาษแห้งออกจากกระดาษเปื้อนอาหารหรือเคลือบมัน",k:/carton|envelope|paper|book|menu|notebook|binder|newspaper|tissue|crate|cardboard|comic|folder|jigsaw|towel|packet|box|web site|library|tray|napkin|towel/},
+{n:"พลาสติก",i:"🧴",bin:"ถังเหลือง (รีไซเคิล)",t:"ล้างคราบ ถอดฝา แยกชนิดพลาสติกก่อนส่งรีไซเคิล",k:/plastic|water bottle|pop bottle|soda bottle|bottle|jug|bucket|pitcher|bag|container|lotion|sunscreen|measuring cup|shower cap|diaper|toy|bubble|water jug|sleeping bag|poncho|pencil box|straw|cup/},
+{n:"ขยะทั่วไป",i:"🗑️",bin:"ถังน้ำเงิน (ทั่วไป)",t:"ลดการปนเปื้อน ทิ้งตามระบบจัดเก็บของท้องถิ่น",k:/trash|waste|garbage|wrapper|ashcan|dustbin|rubbish|general|snack|chip/}
+];
+const byName=n=>CATS.find(c=>c.n===n);
+function match(label){const s=String(label).toLowerCase();return CATS.find(c=>s.includes(c.n))||CATS.find(c=>c.k.test(s))||null}
+
+let reports=ld(RK,[]),P=ld(PK,null)||{xp:0,scans:0,categories:{},daily:{date:"",count:0},lastDay:"",streak:0,badges:[]};
+const saveR=()=>{try{localStorage.setItem(RK,JSON.stringify(reports))}catch{reports.forEach(r=>delete r.img);try{localStorage.setItem(RK,JSON.stringify(reports))}catch{}toast("พื้นที่เก็บข้อมูลเต็ม ลบรูปเก่าแล้ว")}},saveP=()=>localStorage.setItem(PK,JSON.stringify(P));
+const today=()=>new Date().toLocaleDateString("en-CA");
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2600)}
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- Navigation ---------- */
+function go(v){
+ document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-"+v));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+ $("fab").style.display=v==="map"?"block":"none";
+ if(v!=="scan")stopCam();if(v==="scan")loadAI();
+ if(v==="map"){initMap();setTimeout(()=>map.invalidateSize(),60)}
+ if(v==="watch")watchOpen();
+ window.scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+$("goScan").onclick=()=>go("scan");
+
+/* ---------- Player / gamification ---------- */
+const TITLES=l=>l>=20?"ผู้พิทักษ์โลก":l>=10?"ปรมาจารย์รีไซเคิล":l>=5?"นักคัดแยกมืออาชีพ":l>=3?"นักคัดแยกฝึกหัด":"นักคัดแยกมือใหม่";
+const BADGES={first:["🌱","เริ่มต้นรักษ์โลก"],ten:["🥉","คัดแยก 10 ครั้ง"],fifty:["🥇","ผู้เชี่ยวชาญ 50"],daily:["🎯","ภารกิจรายวัน"],streak3:["🔥","ต่อเนื่อง 3 วัน"],reporter:["📍","นักสำรวจจุดขยะ"]};
+function renderPlayer(){
+ if(P.daily.date!==today())P.daily={date:today(),count:0};
+ const l=Math.floor(P.xp/100)+1,w=P.xp%100;
+ $("ttl").textContent=TITLES(l);$("lv").textContent="LV "+l;$("xpf").style.width=w+"%";$("xpt").textContent=`${w}/100 XP · อีก ${100-w} XP ถึงเลเวลถัดไป`;
+ $("sS").textContent=P.scans;$("sX").textContent=P.xp;$("sK").textContent=P.streak;$("sR").textContent=reports.length;
+ $("qt").textContent=Math.min(P.daily.count,3)+"/3";$("qf").style.width=Math.min(P.daily.count/3*100,100)+"%";
+ $("mast").innerHTML=CATS.map(c=>{const n=P.categories[c.n]||0;return`<div class="cc"><i>${c.i}</i><b>${c.n}</b><br><small>Lv.${Math.floor(n/5)+1} · ${n} ครั้ง</small><div class="bar"><i style="width:${n%5*20}%"></i></div></div>`}).join("");
+ $("bgs").innerHTML=Object.entries(BADGES).map(([k,[i,t]])=>`<div class="bd ${P.badges.includes(k)?"on":""}"><i>${i}</i>${t}</div>`).join("");
+}
+function award(type){
+ const t=today(),y=new Date(Date.now()-864e5).toLocaleDateString("en-CA");
+ if(P.daily.date!==t)P.daily={date:t,count:0};
+ if(P.lastDay!==t){P.streak=P.lastDay===y?P.streak+1:1;P.lastDay=t}
+ P.scans++;P.xp+=20;P.daily.count++;P.categories[type]=(P.categories[type]||0)+1;
+ const add=(k,c)=>{if(c&&!P.badges.includes(k)){P.badges.push(k);toast("🏅 ปลดล็อก: "+BADGES[k][1])}};
+ add("first",P.scans>=1);add("ten",P.scans>=10);add("fifty",P.scans>=50);add("daily",P.daily.count>=3);add("streak3",P.streak>=3);
+ saveP();renderPlayer();
+}
+
+/* ---------- AI: โหวตจากหลายโมเดลฟรี ---------- */
+const WW_URL="https://huggingface.co/Arihant0902/wastewise-garbage-cls/resolve/main/wastewise-yolo.onnx",
+WW_CLS=["battery","biological","cardboard","glass","metal","paper","plastic","trash"],
+WW_MAP={battery:{"ขยะอันตราย":.7,"ขยะอิเล็กทรอนิกส์":.3},biological:{"ขยะอินทรีย์":1},cardboard:{"กระดาษ":1},glass:{"แก้ว":1},metal:{"โลหะ":1},paper:{"กระดาษ":1},plastic:{"พลาสติก":1},trash:{"ขยะทั่วไป":1}},
+TJS="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1",CLIPM="Xenova/clip-vit-base-patch32";
+const CP={
+"พลาสติก":["a plastic water bottle","a plastic bag","a plastic cup or food container","plastic straws and cutlery","plastic packaging film"],
+"กระดาษ":["a sheet of paper","a cardboard box","a newspaper or magazine","a milk or juice carton","a paper cup"],
+"โลหะ":["an aluminum drink can","a metal food can","scrap metal or a metal lid","a steel pot or utensil"],
+"แก้ว":["a glass bottle","a glass jar","broken glass","a drinking glass"],
+"ขยะอินทรีย์":["a banana peel","leftover food","fruit peels","vegetable scraps","dry leaves and plant waste","a coconut shell","fish bones and meat scraps"],
+"ขยะทั่วไป":["a styrofoam foam food box","a snack wrapper foil bag","used tissue paper","cigarette butts","a dirty diaper","a broken ceramic plate"],
+"ขยะอันตราย":["a used battery","a light bulb or fluorescent tube","a spray paint can","medicine pills or a syringe","a chemical bottle with a warning label","a pesticide bottle"],
+"ขยะอิเล็กทรอนิกส์":["a mobile phone","a charger cable or earphones","an old electronic device","a computer keyboard or mouse","a household appliance"]};
+const CN=["a person's hand or face","an empty floor or table","a room interior","a plain wall"];
+let ww=null,clip=null,mn=null,tm=null,loading=false,cLoading=false,stream=null,liveT=null,busy=false,sel=null,lastEmb=null,knn=ld("sw_knn",[]);
+const setAI=t=>$("ai").textContent=t,topOf=s=>Object.entries(s).sort((a,b)=>b[1]-a[1])[0]||["",0];
+const ready=()=>{$("kn").textContent=knn.length;setAI("✅ พร้อม: "+[ww&&"WasteWise",clip&&"CLIP",mn&&"MobileNet",tm&&"โมเดลของคุณ"].filter(Boolean).join(" + ")+(knn.length?` · เรียนรู้จากคุณ ${knn.length} ภาพ`:""))};
+async function loadAI(){
+ if(!loading&&!(ww&&mn)){
+  loading=true;setAI("⏳ กำลังโหลดโมเดล AI…");const jobs=[];
+  if(!ww&&window.ort)jobs.push((async()=>{ort.env.wasm.wasmPaths="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";ort.env.wasm.numThreads=1;ww=await ort.InferenceSession.create(WW_URL,{executionProviders:["wasm"]})})().catch(e=>console.warn("WasteWise",e)));
+  if(!mn&&window.mobilenet)jobs.push(mobilenet.load({version:2,alpha:1}).then(m=>mn=m).catch(e=>console.warn("MobileNet",e)));
+  await Promise.all(jobs);loading=false;
+ }
+ if(localStorage.sw_clip==="1")await initClip();
+ if(!ww&&!mn&&!clip&&!tm)setAI("⚠️ โหลดโมเดลไม่ได้ ตรวจสอบอินเทอร์เน็ต · ยังเลือกประเภทเองได้");else ready();
+}
+async function initClip(){
+ if(clip||cLoading)return;cLoading=true;setAI("⏳ กำลังโหลด CLIP โหมดแม่นยำสูง (~150MB ครั้งแรกครั้งเดียว)…");
+ try{
+  const T=await import(TJS+"/+esm");T.env.allowLocalModels=false;
+  const[tok,tmod,proc,vmod]=await Promise.all([T.AutoTokenizer.from_pretrained(CLIPM),T.CLIPTextModelWithProjection.from_pretrained(CLIPM),T.AutoProcessor.from_pretrained(CLIPM),T.CLIPVisionModelWithProjection.from_pretrained(CLIPM)]);
+  const txt=[],lab=[];const TPL=["a photo of ","a close-up photo of discarded waste: "];Object.entries(CP).forEach(([c,a])=>a.forEach(p=>TPL.forEach(t=>{txt.push(t+p);lab.push(c)})));CN.forEach(p=>TPL.forEach(t=>{txt.push(t+p);lab.push("none")}));
+  const{text_embeds}=await tmod(tok(txt,{padding:true,truncation:true}));
+  clip={T,proc,vmod,te:text_embeds.normalize(2,-1).tolist(),lab};localStorage.sw_clip="1";ready();
+ }catch(e){clip=null;setAI("⚠️ โหลด CLIP ไม่สำเร็จ: "+e.message)}
+ cLoading=false;
+}
+const dot=(a,b)=>{let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s};
+async function runWW(cv){
+ const d=cv.getContext("2d").getImageData(0,0,224,224).data,f=new Float32Array(150528);
+ for(let i=0;i<50176;i++){f[i]=d[i*4]/255;f[i+50176]=d[i*4+1]/255;f[i+100352]=d[i*4+2]/255}
+ const o=await ww.run({[ww.inputNames[0]]:new ort.Tensor("float32",f,[1,3,224,224])});
+ let a=Array.from(o[ww.outputNames[0]].data);const s=a.reduce((x,y)=>x+y,0);
+ if(a.some(v=>v<0)||s<.98||s>1.02){const m=Math.max(...a),ex=a.map(v=>Math.exp(v-m)),z=ex.reduce((x,y)=>x+y);a=ex.map(v=>v/z)}
+ const r={};a.forEach((p,i)=>Object.entries(WW_MAP[WW_CLS[i]]).forEach(([c,w])=>r[c]=(r[c]||0)+p*w));return r;
+}
+async function clipEmbed(cv){const img=await clip.T.RawImage.fromURL(cv.toDataURL("image/jpeg",.92)),{image_embeds}=await clip.vmod(await clip.proc(img));return image_embeds.normalize(2,-1).tolist()[0]}
+function clipScores(e){const lg=clip.te.map(t=>100*dot(t,e)),m=Math.max(...lg),ex=lg.map(v=>Math.exp(v-m)),z=ex.reduce((a,b)=>a+b),r={};ex.forEach((v,i)=>r[clip.lab[i]]=(r[clip.lab[i]]||0)+v/z);return r}
+function knnScores(e){
+ if(knn.length<3)return null;
+ const t=knn.map(k=>[k.c,dot(k.e,e)]).sort((a,b)=>b[1]-a[1]).slice(0,5).filter(x=>x[1]>=.85);if(!t.length)return null;
+ const r={};let z=0;t.forEach(([c,s])=>{r[c]=(r[c]||0)+s-.8;z+=s-.8});Object.keys(r).forEach(c=>r[c]/=z);return r;
+}
+async function labelScores(preds){const r={};preds.forEach(p=>{const c=match(p.className);if(c)r[c.n]=(r[c.n]||0)+p.probability});return r}
+let zoomF=1,hist=[],picks=[],dirty=false;
+function crop(el,m){
+ const w=el.videoWidth||el.naturalWidth||el.width,h=el.videoHeight||el.naturalHeight||el.height,c=document.createElement("canvas"),x=c.getContext("2d");c.width=c.height=224;
+ if(m==="full")x.drawImage(el,0,0,w,h,0,0,224,224);else{const s=Math.min(w,h)/zoomF;x.drawImage(el,(w-s)/2,(h-s)/2,s,s,0,0,224,224)}return c;
+}
+function tile(el,i,j){const w=el.naturalWidth,h=el.naturalHeight,c=document.createElement("canvas");c.width=c.height=224;c.getContext("2d").drawImage(el,i*w/2,j*h/2,w/2,h/2,0,0,224,224);return c}
+function quality(cv){
+ const d=cv.getContext("2d").getImageData(0,0,224,224).data,Y=new Float32Array(50176);let m=0;
+ for(let i=0;i<50176;i++){Y[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];m+=Y[i]}m/=50176;
+ let v=0;for(let y=1;y<223;y++)for(let x=1;x<223;x++){const i=y*224+x,l=4*Y[i]-Y[i-1]-Y[i+1]-Y[i-224]-Y[i+224];v+=l*l}
+ return{m,v:v/49284};
+}
+async function scoreCv(cv,fast,keep){
+ const V=[];let emb=null,emb2=null;
+ if(ww)try{V.push(["WasteWise",.35,await runWW(cv)])}catch(e){console.warn(e)}
+ if(clip&&!fast)try{emb=await clipEmbed(cv);V.push(["CLIP",.45,clipScores(emb)]);const k=knnScores(emb);if(k)V.push(["เรียนรู้จากคุณ",.5,k])}catch(e){console.warn(e)}
+ if(mn)try{V.push(["MobileNet",clip&&!fast?.1:.25,await labelScores(await mn.classify(cv,6))])}catch{}
+ if(mn&&!fast&&!clip&&mn.infer)try{const t=mn.infer(cv,true),d=Array.from(await t.data());t.dispose&&t.dispose();const nn=Math.hypot(...d)||1;emb2=d.map(v=>v/nn);const k=knnScores2(emb2);if(k)V.push(["เรียนรู้จากคุณ",.5,k])}catch(e){console.warn(e)}
+ if(tm)try{V.push(["โมเดลของคุณ",.5,await labelScores(await tm.predict(cv))])}catch{}
+ if(keep){lastEmb=emb;lastEmb2=emb2}return V;
+}
+function mergeV(list){
+ const m={};list.forEach(V=>V.forEach(([n,w,s])=>{const o=m[n]||(m[n]={w,s:{},k:0});o.k++;Object.entries(s).forEach(([c,p])=>o.s[c]=(o.s[c]||0)+p)}));
+ return Object.entries(m).map(([n,o])=>{Object.keys(o.s).forEach(c=>o.s[c]/=o.k);return[n,o.w,o.s]});
+}
+function fuse(V){
+ if(!V.length)throw new Error("AI ยังไม่พร้อม");
+ V=V.map(([n,w,s])=>[n,w*accMul(n),s]);const tot=V.reduce((a,v)=>a+v[1],0),S={};V.forEach(([,w,s])=>Object.entries(s).forEach(([c,p])=>S[c]=(S[c]||0)+w*p/tot));
+ const t=topOf(S);return{V,S,cat:t[0]==="none"?null:t[0],none:t[0]==="none",p:t[1]};
+}
+async function ensemble(el,fast){
+ lastEmb=null;const views=fast?[crop(el)]:[crop(el),crop(el,"full")],L=[];
+ for(let i=0;i<views.length;i++)L.push(await scoreCv(views[i],fast,i===0));
+ return fuse(mergeV(L));
+}
+async function openCam(){
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280}},audio:false});
+  $("cam").srcObject=stream;$("cam").style.display="block";$("pv").style.display="none";$("ph").style.display="none";$("cShot").disabled=false;$("live").style.display="block";$("res").classList.remove("on");hist=[];
+  clearInterval(liveT);liveT=setInterval(async()=>{
+   if(busy||!$("cam").videoWidth||!(ww||mn))return;busy=true;
+   try{const r=await ensemble($("cam"),true),g=r.cat&&r.p>.4?r.cat:null;hist.push(g);hist=hist.slice(-4);
+    const st=hist.length===4&&g&&hist.every(h=>h===g);
+    $("live").textContent=st?`🔒 ${byName(g).i} ${g} · นิ่งแล้ว กดถ่ายได้เลย`:r.cat&&r.p>.35?`${byName(r.cat).i} ${r.cat} · ${Math.round(r.p*100)}%`:"กำลังมองหาวัตถุ… จัดให้อยู่ในกรอบ";
+    if(st&&$("auto").checked){busy=false;$("cShot").click();return}
+   }catch{}busy=false;
+  },900);
+ }catch{toast("เปิดกล้องไม่ได้ ต้องอนุญาตสิทธิ์และใช้ HTTPS")}
+}
+function stopCam(){clearInterval(liveT);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("cam").style.display="none";$("live").style.display="none";$("cShot").disabled=true}
+$("cOpen").onclick=openCam;
+$("zm").oninput=()=>{zoomF=+$("zm").value;[$("cam"),$("pv")].forEach(e=>e.style.transform=`scale(${zoomF})`)};
+$("cShot").onclick=()=>{const v=$("cam");if(!v.videoWidth)return;const c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;c.getContext("2d").drawImage(v,0,0);showImg(c.toDataURL("image/jpeg",.92));stopCam()};
+$("file").onchange=e=>{const f=e.target.files[0];if(!f||!f.type.startsWith("image/"))return;stopCam();const r=new FileReader();r.onload=()=>showImg(r.result);r.readAsDataURL(f);e.target.value=""};
+function showImg(src){const im=$("pv");im.onload=analyze;im.src=src;im.style.display="block";$("ph").style.display="none"}
+async function analyze(){
+ $("res").classList.remove("on");setAI("🔍 กำลังวิเคราะห์ภาพ (หลายมุมมอง)…");$("dirty").checked=false;dirty=false;
+ try{
+  if(!ww&&!mn&&!clip&&!tm)await loadAI();
+  const q=quality(crop($("pv"))),r=await ensemble($("pv")),ok=r.cat&&r.p>=.3;lastR=r;picks=ok?[r.cat]:[];
+  $("qual").textContent=q.m<45?"💡 ภาพมืดเกินไป ลองเปิดไฟหรือแฟลช":q.m>220?"💡 ภาพสว่างจ้าเกินไป ลองหลบแสง":q.v<40?"💡 ภาพอาจเบลอ ถือให้นิ่งแล้วถ่ายใหม่":"";
+  const agree=r.V.filter(v=>topOf(v[2])[0]===(r.cat||"none")).length;
+  $("raw").textContent=`AI ${r.V.length} ตัวเห็นตรงกัน ${agree}/${r.V.length}`;
+  $("sug").textContent=ok?`${byName(r.cat).i} ${r.cat}`:r.none&&r.p>=.3?"ไม่พบขยะในภาพ":"ไม่แน่ใจ — กรุณาเลือกประเภท";
+  const pc=Math.round(Math.min(r.p,1)*100);$("cf").style.width=pc+"%";
+  $("cfT").textContent=ok?`ความมั่นใจรวม ${pc}%${pc<50?" (ค่อนข้างต่ำ ควรตรวจสอบ)":agree===r.V.length&&r.V.length>1?" · ทุกโมเดลเห็นตรงกัน":""}`:"ลองถ่ายใกล้ขึ้น เพิ่มแสง หรือเลื่อนซูมให้วัตถุเต็มกรอบ";
+  $("votes").innerHTML=r.V.map(([n,,s])=>{const t=topOf(s);return`<b>${n}</b>: ${t[0]==="none"?"ไม่พบขยะ":esc(t[0])} ${Math.round(t[1]*100)}%`}).join("<br>");
+  $("boost").style.display=clip?"none":"inline-block";
+  drawSel();$("res").classList.add("on");ready();$("res").scrollIntoView({behavior:"smooth",block:"center"});
+ }catch(e){setAI("⚠️ วิเคราะห์ไม่สำเร็จ: "+e.message)}
+}
+$("multi").onclick=async()=>{
+ const el=$("pv");if(!el.naturalWidth)return;$("multi").disabled=true;setAI("🧺 กำลังไล่ดูทีละส่วนของภาพ…");const f={};
+ try{
+  for(const[i,j]of[[0,0],[1,0],[0,1],[1,1]]){const r=fuse(mergeV([await scoreCv(tile(el,i,j),false,false)]));if(r.cat&&r.p>=.4)f[r.cat]=Math.max(f[r.cat]||0,r.p)}
+  const r0=await ensemble(el);if(r0.cat&&r0.p>=.3)f[r0.cat]=Math.max(f[r0.cat]||0,r0.p);
+  picks=Object.keys(f);$("sug").textContent=picks.length?`พบ ${picks.length} ประเภทในภาพ`:"ไม่พบขยะชัดเจน";$("raw").textContent="สแกนแบบแบ่งภาพ 4 ส่วน + ภาพรวม";
+  $("votes").textContent=picks.map(c=>`${byName(c).i} ${c} ~${Math.round(f[c]*100)}%`).join(" · ");drawSel();
+ }catch{toast("สแกนหลายชิ้นไม่สำเร็จ")}
+ $("multi").disabled=false;ready();
+};
+$("boost").onclick=async()=>{await initClip();if(clip)analyze()};
+$("dirty").onchange=()=>{dirty=$("dirty").checked;drawSel()};
+const binOf=c=>dirty&&["กระดาษ","พลาสติก","โลหะ","แก้ว"].includes(c.n)?{b:"ถังน้ำเงิน (ทั่วไป)",t:"เปื้อนอาหาร/น้ำมันจะปนเปื้อนวัสดุรีไซเคิล ถ้าล้างได้ให้ล้างก่อนแล้วทิ้งถังเหลือง ถ้าล้างไม่ออกทิ้งถังน้ำเงิน"}:{b:c.bin,t:c.t};
+function drawSel(){
+ $("chips").innerHTML=CATS.map(c=>`<button type="button" class="chip ${picks.includes(c.n)?"on":""}" data-n="${c.n}">${c.i} ${c.n}</button>`).join("");
+ $("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{const n=b.dataset.n;picks=picks.includes(n)?picks.filter(x=>x!==n):[...picks,n];drawSel()});
+ $("tip").innerHTML=picks.length?picks.map(n=>{const c=byName(n),x=binOf(c);return`<b>${c.i} ${c.n} → ${x.b}</b><br>${x.t}`}).join('<hr style="border:0;border-top:1px solid var(--ln);margin:8px 0">'):"เลือกประเภทด้านบนเพื่อดูวิธีทิ้ง";
+ $("ok").disabled=!picks.length;$("ok").textContent=`✓ ยืนยันและรับ +${20*Math.max(picks.length,1)} XP`;
+}
+$("ok").onclick=()=>{
+ if(!picks.length)return;const n=picks.length,names=picks.join(", ");picks.forEach(c=>award(c));navigator.vibrate?.(40);let ex="";
+ if(clip&&lastEmb&&n===1){knn.push({c:names,e:lastEmb.map(v=>+v.toFixed(3))});if(knn.length>150)knn.shift();try{localStorage.setItem("sw_knn",JSON.stringify(knn))}catch{}ex=" · AI จำภาพนี้แล้ว";ready()}
+ toast(`บันทึก ${names} · +${20*n} XP${ex}`);$("res").classList.remove("on");$("pv").style.display="none";$("ph").style.display="block";picks=[];
+};
+$("clipBtn").onclick=async()=>{await initClip();if(clip)toast("เปิดโหมดแม่นยำสูงแล้ว")};
+$("knnClr").onclick=()=>{if(confirm("ลบสิ่งที่ AI เรียนรู้จากคุณทั้งหมด?")){knn=[];localStorage.removeItem("sw_knn");ready()}};
+$("tmLoad").onclick=async()=>{
+ const u=$("tmUrl").value.trim();if(!/^https?:\/\//.test(u))return toast("กรุณาใส่ URL โมเดล Teachable Machine");
+ try{
+  if(!window.tmImage)await new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  const b=u.endsWith("/")?u:u+"/";toast("กำลังโหลดโมเดล…");tm=await tmImage.load(b+"model.json",b+"metadata.json");toast(`โหลดสำเร็จ · ${tm.getTotalClasses()} คลาส`);ready();
+ }catch{tm=null;toast("โหลดโมเดลไม่สำเร็จ ตรวจสอบ URL/อินเทอร์เน็ต")}
+};
+$("tmReset").onclick=()=>{tm=null;toast("เลิกใช้โมเดลของคุณแล้ว");ready()};
+
+/* ---------- Map, GPS & reports ---------- */
+let map=null,cl=null,heat=null,flt="all",mode="street",heatOn=false,near=false,me=null,meC=null,watch=null,pos=null,pick=false,rImg=null,base={};
+const COL={"สูง":"#e5484d","ปานกลาง":"#f0a31a","ต่ำ":"#1b8a5a"},SC={"สูง":"s3","ปานกลาง":"s2","ต่ำ":"s1"},HW={"สูง":1,"ปานกลาง":.6,"ต่ำ":.3};
+const dist=(a,b,c,d)=>{const r=x=>x*Math.PI/180,h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 12742*Math.asin(Math.sqrt(h))};
+const fmtD=d=>d<1?Math.round(d*1000)+" ม.":d.toFixed(1)+" กม.";
+function initMap(){
+ if(map)return;
+ map=L.map("map",{zoomControl:false}).setView([13.2,101],6);L.control.zoom({position:"bottomright"}).addTo(map);
+ const img=()=>L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:20,maxNativeZoom:18,attribution:"Esri"});
+ base.street=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:20,maxNativeZoom:19,attribution:"© OpenStreetMap"});
+ base.sat=img();
+ base.hyb=L.layerGroup([img(),L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:20,maxNativeZoom:18})]);
+ mkGibs();initWB();probeGibs();mkUsr();probeHLS();initV9();probeGX();
+ cl=L.markerClusterGroup({maxClusterRadius:45}).addTo(map);
+ map.on("click",e=>{if(insOn&&!pick){inspect(e.latlng);return}if(msrOn&&!pick){msrPts.push(e.latlng);drawMsr();return}if(!pick)return;pick=false;$("pickBar").style.display="none";setPt(e.latlng.lat,e.latlng.lng);$("dlg").showModal()});
+ setBase(mode);
+}
+function setBase(k){mode=k;Object.values(base).forEach(l=>map.hasLayer(l)&&map.removeLayer(l));base[k].addTo(map);renderMap()}
+function track(on){
+ if(!on){if(watch!=null)navigator.geolocation.clearWatch(watch);watch=null;if(map){me&&map.removeLayer(me);meC&&map.removeLayer(meC)}me=meC=null;$("gstat").textContent="";return renderMap()}
+ if(!navigator.geolocation)return toast("อุปกรณ์ไม่รองรับ GPS");if(watch!=null)return;
+ let first=true;toast("📡 กำลังติดตามตำแหน่ง…");
+ watch=navigator.geolocation.watchPosition(p=>{
+  const{latitude:a,longitude:b,accuracy:c}=p.coords;pos={lat:a,lng:b,acc:c};const ll=[a,b];geoAlert(a,b);
+  if(map){
+   if(!me){me=L.marker(ll,{icon:L.divIcon({className:"",html:'<div class="me"></div>',iconSize:[22,22]}),zIndexOffset:999}).addTo(map);meC=L.circle(ll,{radius:c,weight:1,color:"#2a7de1",fillOpacity:.12}).addTo(map)}
+   else{me.setLatLng(ll);meC.setLatLng(ll).setRadius(c)}
+   if(first)map.setView(ll,Math.max(map.getZoom(),16));
+  }
+  $("gstat").textContent=`📡 ตำแหน่งของคุณ ±${Math.round(c)} ม.`+(c>50?" · สัญญาณอ่อน ลองออกที่โล่ง":c<=15?" · แม่นยำสูง":"");
+  if(first){first=false;renderMap()}
+ },e=>{toast(e.code===1?"ไม่ได้รับอนุญาตใช้ GPS (เปิดสิทธิ์ตำแหน่ง)":"สัญญาณ GPS ขาดหาย");if(e.code===1){watch=null;renderMap()}},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+}
+const pop=r=>`<b>${esc(r.place)}</b><br>${esc(r.province)} · ${esc(r.type)}<br>ระดับ ${esc(r.severity)} · ${esc(r.amount)} (≈${fKg(kgOf(r))})${r.description?`<br><small>${esc(r.description)}</small>`:""}${r.img?`<br><img src="${r.img}" style="width:190px;border-radius:8px;margin-top:6px">`:""}<br><a href="https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}" target="_blank" rel="noopener">🧭 นำทาง</a><br><small>สถานะ: ${esc(r.status||"รอตรวจสอบ")} · ยืนยัน ${r.cf||0}</small><br><button onclick="rpAct(${+r.id},'cf')">👍 ยืนยัน</button><button onclick="rpAct(${+r.id},'wip')">🧹 กำลังเก็บ</button><button onclick="rpAct(${+r.id},'done')">✅ เก็บแล้ว</button><button onclick="rpShare(${+r.id})">↗ แชร์</button><button onclick="rpIcs(${+r.id})">📅 นัดเก็บ</button>`;
+function renderMap(){
+ const chip=(on,a,t)=>`<button class="chip ${on?"on":""}" ${a}>${t}</button>`;
+ $("mf").innerHTML=[["all","ทั้งหมด"],["สูง","🔴 สูง"],["ปานกลาง","🟠 กลาง"],["ต่ำ","🟢 ต่ำ"]].map(([k,t])=>chip(flt===k,`data-k="${k}"`,t)).join("");
+ $("mt").innerHTML=[["street","🗺️ ถนน"],["sat","🛰️ ดาวเทียม"],["hyb","🛰️ ดาวเทียม+ชื่อ"],["nasa","🌍 NASA รายวัน"],["wb","🛰️ ละเอียดสูงล่าสุด"]].concat(userKey()?[["usr","🗝️ ดาวเทียมคีย์ของคุณ"]]:[]).map(([k,t])=>chip(mode===k,`data-b="${k}"`,t)).join("")+chip(heatOn,'data-t="heat"',"🌡️ ความหนาแน่น")+chip(fireOn,'data-t="fire"',"🔥 จุดความร้อน")+chip(hzOn,'data-t="hz"',"⚠️ เขตเสี่ยง")+chip(lstOn,'data-t="lst"',"🌡️ ความร้อนพื้นผิว")+chip(pmOn,'data-t="pm"',"🧪 PM2.5 ทั่วไทย")+chip(osmOn,'data-t="osm"',"♻️ จุดขยะ (OSM)")+chip(insOn,'data-t="ins"',"🔎 วิเคราะห์จุด")+chip(blendOn,'data-t="blend"',"◐ ซ้อน NASA วันนี้")+(hlsOK?chip(hlsOn,'data-t="hls"',"🛰️ ภาพสด 30 ม. (HLS)"):"")+chip(s2On,'data-t="s2"',"🛰️ Sentinel-2 ล่าสุด 10 ม.")+chip(animT!=null,'data-t="anim"',"▶ NASA 7 วัน")+chip(srcOn,'data-t="src"',"🏭 แหล่งมลพิษ (OSM)")+chip(msrOn,'data-t="msr"',"📏 วัดระยะ/พื้นที่")+Object.keys(gxOK).map(id=>chip(!!gxOn[id],`data-t="gx:${id}"`,GX.find(g=>g[0]===id)[1])).join("")+(L.control&&L.control.sideBySide?chip(cmpOn,'data-t="cmp"',"↔ เทียบก่อน-หลัง"):"")+chip(false,'data-t="goog"',"🔗 เทียบ Google")+chip(watch!=null,'data-t="gps"',"📡 ติดตามฉัน")+chip(near,'data-t="near"',"↕ ใกล้ฉันก่อน");
+ $("mf").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{flt=b.dataset.k;renderMap()});
+ $("mt").querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>setBase(b.dataset.b));
+ $("mt").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{const t=b.dataset.t;
+  if(t==="heat"){heatOn=!heatOn;renderMap()}
+  else if(t==="fire"){fireOn=!fireOn;renderMap()}
+  else if(t==="hz"){hzOn=!hzOn;renderMap()}
+  else if(t==="lst"){lstOn=!lstOn;renderMap()}
+  else if(t==="pm"){pmOn=!pmOn;if(pmOn)loadPM();renderMap()}
+  else if(t==="osm"){osmOn=!osmOn;if(osmOn)loadOSM();renderMap()}
+  else if(t==="ins"){insOn=!insOn;toast(insOn?"แตะบนแผนที่เพื่อวิเคราะห์จุด":"ปิดโหมดวิเคราะห์จุด");renderMap()}
+  else if(t==="blend"){blendOn=!blendOn;renderMap()}
+  else if(t==="hls"){hlsOn=!hlsOn;renderMap()}
+  else if(t==="goog"){const c=map.getCenter();window.open(`https://www.google.com/maps/@?api=1&map_action=map&center=${c.lat.toFixed(6)},${c.lng.toFixed(6)}&zoom=${Math.min(map.getZoom(),21)}&basemap=satellite`,"_blank","noopener")}
+  else if(t==="s2"){s2On=!s2On;if(s2On&&!s2Items.length)loadS2();renderMap()}
+  else if(t==="anim"){toggleAnim()}
+  else if(t==="src"){srcOn=!srcOn;if(srcOn)loadSrc();renderMap()}
+  else if(t==="msr"){msrOn=!msrOn;if(msrOn){insOn=false;toast("แตะบนแผนที่ทีละจุดเพื่อวัดระยะ/พื้นที่")}else{msrPts=[];if(msrL)msrL.clearLayers()}renderMap()}
+  else if(t.startsWith("gx:")){const id=t.slice(3);gxOn[id]=!gxOn[id];renderMap()}
+  else if(t==="cmp"){cmpOn=!cmpOn;mkCmp();renderMap()}
+  else if(t==="gps")track(watch==null);
+  else{if(!pos){toast("เปิด 'ติดตามฉัน' ก่อน");track(true);return}near=!near;renderMap()}});
+ const vis=reports.filter(r=>flt==="all"||r.severity===flt);
+ if(map){
+  cl.clearLayers();if(heat){map.removeLayer(heat);heat=null}
+  if(heatOn){heat=L.heatLayer(vis.map(r=>[r.lat,r.lng,HW[r.severity]]),{radius:28,blur:22}).addTo(map);map.removeLayer(cl)}
+  else{map.addLayer(cl);vis.forEach(r=>cl.addLayer(L.circleMarker([r.lat,r.lng],{radius:r.severity==="สูง"?10:8,color:rc(r),fillColor:rc(r),fillOpacity:.85,weight:2}).bindPopup(pop(r))))}
+ }
+ let list=reports.map((r,i)=>({r,i,d:pos?dist(pos.lat,pos.lng,r.lat,r.lng):null}));
+ if(near&&pos)list.sort((a,b)=>a.d-b.d);else list.reverse();
+ $("rl").innerHTML=list.slice(0,20).map(({r,i,d})=>`<div class="rep" data-i="${i}"><div style="font-size:24px">${(byName(r.type)||{i:"🗑️"}).i}</div><div><b style="font-size:14px;font-weight:500">${esc(r.place)}</b><p>${esc(r.province)} · ${esc(r.type)} · ${new Date(r.date).toLocaleDateString("th-TH")}${d!=null?" · ห่าง "+fmtD(d):""}</p></div><span class="sv ${SC[r.severity]}">${esc(r.severity)}</span></div>`).join("")||'<p class="mu" style="text-align:center">ยังไม่มีรายงาน แตะ ＋ เพื่อเพิ่ม</p>';
+ const cn={};reports.forEach(r=>cn[r.province]=(cn[r.province]||0)+1);const s=Object.entries(cn).sort((a,b)=>b[1]-a[1]).slice(0,6),mx=s[0]?.[1]||1;
+ $("rk").innerHTML=s.length?s.map(([p,n],i)=>`<div style="margin-bottom:9px;font-size:13px"><div style="display:flex;justify-content:space-between"><span>${i+1}. ${esc(p)}</span><b>${n} จุด</b></div><div class="bar"><i style="width:${n/mx*100}%"></i></div></div>`).join(""):'<p class="mu" style="text-align:center">ยังไม่มีข้อมูล</p>';
+ renderPlayer();renderQuests();watchRender();syncOv();
+}
+$("rl").onclick=e=>{const el=e.target.closest(".rep");if(!el||!map)return;const r=reports[+el.dataset.i];window.scrollTo(0,0);map.flyTo([r.lat,r.lng],17)};
+$("pv2").innerHTML='<option value="">เลือกจังหวัด</option>'+PROV.map(p=>`<option>${p}</option>`).join("");
+$("wt").innerHTML=CATS.map(c=>`<option>${c.n}</option>`).join("");
+async function rev(a,b,acc){
+ const pre=acc?`±${Math.round(acc)} ม. · `:"";$("gnote").textContent=pre+"กำลังค้นหาที่อยู่…";
+ try{
+  const j=await(await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=th&lat=${a}&lon=${b}`)).json(),ad=j.address||{};
+  const st=(ad.state||ad.province||ad.city||"").replace(/^จังหวัด/,""),p=st&&PROV.find(x=>x===st||st.includes(x));
+  if(p)$("pv2").value=p;
+  if(!$("pl").value)$("pl").value=[ad.road,ad.suburb||ad.village||ad.neighbourhood,ad.city_district||ad.county||ad.town].filter(Boolean).join(" ").slice(0,90);
+  $("gnote").textContent=pre+"📍 "+(j.display_name||"").slice(0,80);
+ }catch{$("gnote").textContent=pre.slice(0,-3)}
+}
+function setPt(a,b,acc){$("lat").value=a.toFixed(6);$("lng").value=b.toFixed(6);if(map)map.setView([a,b],16);rev(a,b,acc)}
+function gps(){
+ if(!navigator.geolocation)return toast("อุปกรณ์ไม่รองรับ GPS");toast("📡 กำลังหาตำแหน่งแม่นยำ…");
+ navigator.geolocation.getCurrentPosition(p=>{pos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};setPt(pos.lat,pos.lng,pos.acc)},e=>toast(e.code===1?"ไม่ได้รับอนุญาตใช้ GPS (เปิดสิทธิ์ตำแหน่ง)":"หาตำแหน่งไม่ได้ ลองออกที่โล่ง"),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+$("gps").onclick=gps;$("loc").onclick=()=>{go("map");track(true);if(pos&&map)map.setView([pos.lat,pos.lng],16)};
+$("fab").onclick=()=>{$("dlg").showModal();if(!$("kg").value)$("kg").value=KGD[$("am").value];if(!$("lat").value)gps()};$("cancel").onclick=()=>$("dlg").close();
+$("pickMap").onclick=()=>{$("dlg").close();pick=true;$("pickBar").style.display="flex"};
+$("pickX").onclick=()=>{pick=false;$("pickBar").style.display="none";$("dlg").showModal()};
+$("rph").onchange=e=>{
+ const f=e.target.files[0];if(!f||!f.type.startsWith("image/"))return;const fr=new FileReader();
+ fr.onload=()=>{const im=new Image();im.onload=async()=>{
+  const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+  rImg=c.toDataURL("image/jpeg",.6);$("rpv").src=rImg;$("rpv").style.display="block";
+  try{if(!ww&&!mn&&!clip)await loadAI();const r=await ensemble(im);if(r.cat&&r.p>=.3){$("wt").value=r.cat;toast("🤖 AI ช่วยเลือกประเภท: "+r.cat)}}catch{}
+ };im.src=fr.result};fr.readAsDataURL(f);
+};
+$("rf").onsubmit=e=>{
+ const lat=+$("lat").value,lng=+$("lng").value;
+ if(!$("pv2").value||!(lat>=5&&lat<=21&&lng>=97&&lng<=106)){e.preventDefault();return toast("กรุณาเลือกจังหวัดและระบุพิกัดในประเทศไทย")}
+ reports.push({id:Date.now(),place:$("pl").value.trim(),province:$("pv2").value,type:$("wt").value,severity:$("sev").value,amount:$("am").value,description:$("ds").value.trim(),kg:+$("kg").value||KGD[$("am").value],status:"รอตรวจสอบ",cf:0,lat,lng,img:rImg,date:new Date().toISOString()});
+ P.daily.rep=(P.daily.rep||0)+1;if(!P.badges.includes("reporter")){P.badges.push("reporter")}saveP();
+ saveR();$("rf").reset();delete $("kg").dataset.u;rImg=null;$("rpv").style.display="none";$("gnote").textContent="";renderMap();toast("บันทึกรายงานแล้ว");if(map)map.setView([lat,lng],17);
+};
+/* ---------- เฝ้าระวัง: อากาศ ข่าว เขตเสี่ยง ดาวเทียม NASA ---------- */
+const KGD={"เล็กน้อย":5,"ปานกลาง":50,"จำนวนมาก":300},SW={"ต่ำ":1,"ปานกลาง":2,"สูง":3},TW={"ขยะอันตราย":3,"ขยะอิเล็กทรอนิกส์":2.5};
+const kgOf=r=>r.kg!=null&&r.kg>=0?+r.kg:(KGD[r.amount]||5);
+const LV=[null,["เฝ้าระวัง","#f0a31a"],["เสี่ยงสูง","#ff7a1a"],["วิกฤต","#e5484d"]];
+const fKg=n=>n>=1000?(n/1000).toFixed(1)+" ตัน":Math.round(n)+" กก.";
+let gd=new Date(Date.now()-864e5).toISOString().slice(0,10),fireOn=false,hzOn=false,fireL=null,hzG=null,ZN=[],newsK="th",wTimer=null;
+function gibs(l,ext){return L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${l}/default/${gd}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.${ext}`,{maxNativeZoom:9,maxZoom:20,attribution:"NASA GIBS · "+gd})}
+function mkGibs(){
+ const w=base.nasa&&map.hasLayer(base.nasa);if(w)map.removeLayer(base.nasa);base.nasa=gibs("VIIRS_SNPP_CorrectedReflectance_TrueColor","jpg");if(w)base.nasa.addTo(map);
+ const f=fireL&&map.hasLayer(fireL);if(f)map.removeLayer(fireL);fireL=gibs("VIIRS_SNPP_Thermal_Anomalies_375m_All","png");if(f)fireL.addTo(map);mkLst();mkBlend();
+}
+function syncOv(){
+ if(!map||!fireL)return;syncOv2();
+ if(fireOn){if(!map.hasLayer(fireL))fireL.addTo(map)}else if(map.hasLayer(fireL))map.removeLayer(fireL);
+ if(!hzG)hzG=L.layerGroup();hzG.clearLayers();
+ ZN.forEach(z=>L.circle([z.lat,z.lng],{radius:500,color:LV[z.lv][1],fillColor:LV[z.lv][1],fillOpacity:.22,weight:2}).bindPopup(`<b>เขต${LV[z.lv][0]}</b><br>${esc(z.prov)}<br>≈${fKg(z.kg)} · ${z.items.length} จุด<br>อันตราย/e-waste ≈${fKg(z.hkg)}`).addTo(hzG));
+ if(hzOn){if(!map.hasLayer(hzG))hzG.addTo(map)}else if(map.hasLayer(hzG))map.removeLayer(hzG);
+}
+function zones(){
+ const Z=[];
+ reports.filter(OPENR).sort((a,b)=>SW[b.severity]-SW[a.severity]).forEach(r=>{
+  let z=Z.find(z=>dist(z.lat,z.lng,r.lat,r.lng)<=.5);
+  if(!z){z={lat:r.lat,lng:r.lng,items:[],kg:0,hkg:0,score:0,prov:r.province};Z.push(z)}
+  const kg=kgOf(r);z.items.push(r);z.kg+=kg;if(TW[r.type])z.hkg+=kg;z.score+=SW[r.severity]*(TW[r.type]||1)*(1+Math.log10(1+kg));
+ });
+ Z.forEach(z=>z.lv=z.score>=15?3:z.score>=6?2:1);return Z.sort((a,b)=>b.score-a.score);
+}
+function watchRender(){
+ ZN=zones();const OP=reports.filter(OPENR),tot=OP.reduce((a,r)=>a+kgOf(r),0),hz=OP.reduce((a,r)=>a+(TW[r.type]?kgOf(r):0),0),bt={};
+ OP.forEach(r=>bt[r.type]=(bt[r.type]||0)+kgOf(r));const bs=Object.entries(bt).sort((a,b)=>b[1]-a[1]),mx=bs[0]?.[1]||1,hi=ZN.filter(z=>z.lv>=2).length;
+ $("bDate").textContent=new Date().toLocaleDateString("th-TH",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+ $("bKg").textContent=reports.length?fKg(tot):"0";$("bZ").textContent=hi;
+ $("hz").innerHTML=reports.length?`<div class="z3"><div><b>${fKg(tot)}</b><span>ปริมาณรวม (ประมาณ)</span></div><div><b>${fKg(hz)}</b><span>อันตราย + e-waste</span></div><div><b>${hi}</b><span>เขตเสี่ยงสูงขึ้นไป</span></div></div>
+ <div style="margin:14px 0 6px;font-size:13px;font-weight:500">ปริมาณแยกตามประเภท</div>${bs.map(([t,k])=>`<div style="margin-bottom:8px;font-size:12px"><div style="display:flex;justify-content:space-between"><span>${(byName(t)||{i:""}).i} ${esc(t)}</span><b>${fKg(k)}</b></div><div class="bar"><i style="width:${k/mx*100}%;background:${TW[t]?"var(--rd)":"var(--pr)"}"></i></div></div>`).join("")}
+ <div style="margin:14px 0 4px;font-size:13px;font-weight:500">เขตเสี่ยง (รัศมี 500 ม.) — แตะเพื่อดูบนแผนที่</div>${ZN.slice(0,8).map((z,i)=>`<div class="rep" data-z="${i}"><div style="font-size:22px">⚠️</div><div><b style="font-size:14px;font-weight:500">${esc(z.items[0].place)}</b><p>${esc(z.prov)} · ${z.items.length} จุด · ≈${fKg(z.kg)}${z.hkg?` · อันตราย ≈${fKg(z.hkg)}`:""}</p></div><span class="sv" style="background:${LV[z.lv][1]}33;color:${LV[z.lv][1]}">${LV[z.lv][0]}</span></div>`).join("")}
+ <p class="mu" style="line-height:1.6;margin-top:10px">⚠️ ปริมาณเป็นค่าประมาณจากรายงานของผู้ใช้ (เล็กน้อย≈5 / ปานกลาง≈50 / มาก≈300 กก. หรือค่าที่ผู้รายงานกรอก) ไม่ใช่การชั่งจริง คะแนนเสี่ยง = ความรุนแรง × ชนิดขยะ (อันตรายถ่วง ×3, e-waste ×2.5) × ปริมาณ รวมกันในรัศมี 500 ม.</p>`
+ :'<p class="mu" style="text-align:center">ยังไม่มีรายงาน ไปที่แผนที่แล้วแตะ ＋ เพื่อเพิ่มจุดขยะ ระบบจะคำนวณเขตเสี่ยงให้</p>';
+}
+$("hz").onclick=e=>{const el=e.target.closest("[data-z]");if(!el)return;const z=ZN[+el.dataset.z];hzOn=true;go("map");setTimeout(()=>{map.invalidateSize();renderMap();map.flyTo([z.lat,z.lng],16)},150)};
+
+$("rfAQ").onclick=loadAQ;$("rfNews").onclick=()=>loadNews(newsK,true);
+$("goWatch").onclick=()=>go("watch");
+$("gd").value=gd;$("gd").max=new Date().toISOString().slice(0,10);$("gd").onchange=()=>{gd=$("gd").value||gd;lstD=gd;if(map){mkGibs();syncOv();if(mode==="nasa")setBase("nasa")}};
+$("am").onchange=()=>{if(!$("kg").dataset.u)$("kg").value=KGD[$("am").value]};$("kg").oninput=()=>$("kg").dataset.u=1;
+
+/* ---------- แผนที่สิ่งแวดล้อมของเราเอง: ดาวเทียมล่าสุด + PM2.5 + จุดขยะ OSM + วิเคราะห์จุด ---------- */
+let lstOn=false,pmOn=false,osmOn=false,insOn=false,lstD=null,lstL=null,pmL=null,osmG=null,osmPts=[],osmBusy=false,osmKey="",insP=null;const INF={};
+const ESRI="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",ymd=d=>d.toISOString().slice(0,10);
+const info=()=>{$("imgInfo").innerHTML=Object.values(INF).filter(Boolean).join("<br>")};
+function mkLst(){
+ const w=lstL&&map.hasLayer(lstL);if(w)map.removeLayer(lstL);
+ lstL=L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_Land_Surface_Temp_Day/default/${lstD||gd}/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png`,{maxNativeZoom:7,maxZoom:20,opacity:.65,attribution:"NASA GIBS MODIS LST"});if(w)lstL.addTo(map);
+}
+function syncOv2(){
+ const sw=(on,l)=>{if(!l)return;if(on&&!map.hasLayer(l))l.addTo(map);else if(!on&&map.hasLayer(l))map.removeLayer(l)};
+ if(!osmG)osmG=L.layerGroup();sw(lstOn,lstL);sw(pmOn,pmL);sw(osmOn,osmG);sw(blendOn,blendL);sw(hlsOn&&hlsOK,hlsG);INF.hls=hlsOn&&hlsOK?HLSINFO:"";syncV9();$("wbRow").style.display=mode==="wb"?"flex":"none";$("blRow").style.display=blendOn?"flex":"none";
+ INF.lst=lstOn?`🌡️ ความร้อนพื้นผิว (MODIS LST กลางวัน): ข้อมูลล่าสุดที่พบ ${lstD||gd} · สีบอกอุณหภูมิผิวดิน ไม่ใช่อุณหภูมิอากาศ`:"";if(!pmOn)INF.pm="";if(!osmOn)INF.osm="";
+ $("pmLeg").style.display=pmOn?"block":"none";info();
+}
+async function initWB(){
+ base.wb=L.tileLayer(ESRI,{maxZoom:20,maxNativeZoom:18,attribution:"Esri"});
+ map.on("moveend",()=>{if(osmOn)loadOSM()});
+ try{
+  const c=await(await fetch("https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json")).json();
+  const all=Object.entries(c).map(([k,v])=>({k,d:((v.itemTitle||"").match(/\d{4}-\d\d-\d\d/)||[""])[0]})).filter(x=>x.d).sort((a,b)=>b.d.localeCompare(a.d)),e=all[0];fillWB(all);
+  if(e){const w=map.hasLayer(base.wb);if(w)map.removeLayer(base.wb);base.wb=L.tileLayer(`https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/GoogleMapsCompatible/MapServer/tile/${e.k}/{z}/{y}/{x}`,{maxZoom:20,maxNativeZoom:18,attribution:"Esri Wayback "+e.d});if(w)base.wb.addTo(map);INF.wb=`🛰️ ภาพละเอียดสูง: Esri รุ่นล่าสุด (รุ่น ${e.d}) · วันที่ถ่ายจริงต่างกันในแต่ละพื้นที่ แตะ 🔎 วิเคราะห์จุดเพื่อดู`;info()}
+ }catch{}
+}
+async function probeGibs(){
+ const has=(d,l,m,x)=>new Promise(r=>{const i=new Image();i.onload=()=>r(true);i.onerror=()=>r(false);i.src=`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${l}/default/${d}/${m}/4/7/12.${x}`});
+ for(let k=0;k<3;k++){const d=ymd(new Date(Date.now()-k*864e5));if(await has(d,"VIIRS_SNPP_CorrectedReflectance_TrueColor","GoogleMapsCompatible_Level9","jpg")){gd=d;break}}
+ for(let k=0;k<7;k++){const d=ymd(new Date(Date.parse(gd)-k*864e5));if(await has(d,"MODIS_Terra_Land_Surface_Temp_Day","GoogleMapsCompatible_Level7","png")){lstD=d;break}}
+ $("gd").value=gd;INF.nasa=`🌍 NASA VIIRS รายวัน: ภาพวันที่ ${gd} (UTC) · ความละเอียดหยาบ เหมาะดูควัน ไฟ เมฆระดับภูมิภาค (ถ้าภาพวันนี้ยังไม่ครบ เลือกเมื่อวาน)`;
+ mkGibs();syncOv();renderMap();
+}
+/* PM2.5 ทั่วไทย: สร้างพื้นผิวเองจากกริด 1° */
+const PMS=[[0,[46,158,91]],[12,[46,158,91]],[35,[212,169,0]],[55,[255,140,26]],[150,[229,72,77]],[250,[143,63,191]],[350,[126,0,35]]];
+function pmColor(v){for(let i=1;i<PMS.length;i++)if(v<=PMS[i][0]){const[a,ca]=PMS[i-1],[b,cb]=PMS[i],t=(v-a)/(b-a||1);return ca.map((c,k)=>Math.round(c+(cb[k]-c)*t))}return PMS[PMS.length-1][1]}
+async function loadPM(){
+ INF.pm="🧪 กำลังสร้างแผนที่ PM2.5…";info();
+ try{
+  let c=ld("sw_pm",null);
+  if(!c||Date.now()-c.at>18e5){
+   const pts=[];for(let la=5.5;la<=20.5;la++)for(let lo=97.5;lo<=105.5;lo++)pts.push([la,lo]);const G=[];
+   for(let i=0;i<pts.length;i+=72){const ch=pts.slice(i,i+72),j=await(await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${ch.map(p=>p[0]).join(",")}&longitude=${ch.map(p=>p[1]).join(",")}&current=pm2_5`)).json();(Array.isArray(j)?j:[j]).forEach(d=>G.push(d.current?.pm2_5??0))}
+   if(G.length!==144)throw 0;c={G,at:Date.now()};localStorage.sw_pm=JSON.stringify(c);
+  }
+  drawPM(c);
+ }catch{INF.pm="🧪 สร้างแผนที่ PM2.5 ไม่ได้ (ตรวจสอบอินเทอร์เน็ต)";info()}
+}
+function drawPM(c){
+ const W=160,H=300,NL=16,NG=9,G=c.G,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d"),im=x.createImageData(W,H);
+ const g=(i,j)=>G[Math.min(NL-1,Math.max(0,i))*NG+Math.min(NG-1,Math.max(0,j))],my=p=>Math.log(Math.tan(Math.PI/4+p*Math.PI/360)),yN=my(20.5),yS=my(5.5);
+ for(let py=0;py<H;py++){
+  const lat=(2*Math.atan(Math.exp(yN-(py+.5)/H*(yN-yS)))-Math.PI/2)*180/Math.PI,fl=lat-5.5,i=Math.floor(fl),ty=fl-i;
+  for(let px=0;px<W;px++){
+   const fg=(px+.5)/W*8,j=Math.floor(fg),tx=fg-j,v=(g(i,j)*(1-tx)+g(i,j+1)*tx)*(1-ty)+(g(i+1,j)*(1-tx)+g(i+1,j+1)*tx)*ty,col=pmColor(v),o=(py*W+px)*4;
+   im.data[o]=col[0];im.data[o+1]=col[1];im.data[o+2]=col[2];im.data[o+3]=150;
+  }
+ }
+ x.putImageData(im,0,0);if(pmL&&map.hasLayer(pmL))map.removeLayer(pmL);
+ pmL=L.imageOverlay(cv.toDataURL(),[[5.5,97.5],[20.5,105.5]],{opacity:.7,interactive:false});
+ const mx=Math.max(...G),mi=G.indexOf(mx);
+ INF.pm=`🧪 PM2.5 สูงสุดราว ${Math.round(mx)} µg/ลบ.ม. ใกล้ ${(5.5+Math.floor(mi/NG)).toFixed(1)}°N ${(97.5+mi%NG).toFixed(1)}°E · สร้างเองจากกริด 1° ของแบบจำลอง CAMS (ละเอียดจริงราว 40 กม.) · ${hhmm(c.at)}`;syncOv2();
+}
+/* จุดขยะ/รีไซเคิลจริงจาก OpenStreetMap */
+const OT=t=>t.landuse==="landfill"?["⛰️","หลุมฝังกลบ/ที่ทิ้งขยะ","#8b5a2b",12]:t.amenity==="waste_disposal"?["🗑️","ที่ทิ้งขยะ","#8b5a2b",9]:t.amenity==="waste_transfer_station"?["🏭","สถานีขนถ่ายขยะ","#c06a00",11]:t.man_made==="wastewater_plant"?["💧","โรงบำบัดน้ำเสีย","#2a7de1",10]:["♻️","จุดรีไซเคิล","#1b8a5a",7];
+async function loadOSM(){
+ if(!map)return;
+ if(map.getZoom()<11){INF.osm="♻️ ซูมเข้าให้ถึงระดับ 11 ขึ้นไปเพื่อโหลดจุดขยะ/รีไซเคิลจาก OpenStreetMap";info();return}
+ const b=map.getBounds(),bb=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(v=>v.toFixed(3)).join(",");
+ if(bb===osmKey||osmBusy)return;osmBusy=true;INF.osm="♻️ กำลังโหลดจุดขยะ/รีไซเคิล…";info();
+ const q=`[out:json][timeout:25];(nwr["landuse"="landfill"](${bb});nwr["amenity"="waste_disposal"](${bb});nwr["amenity"="waste_transfer_station"](${bb});nwr["amenity"="recycling"](${bb});nwr["man_made"="wastewater_plant"](${bb}););out center 300;`;
+ try{
+  const j=await(await fetch("https://overpass-api.de/api/interpreter",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)})).json();
+  osmPts=j.elements.map(e=>({lat:e.lat??e.center?.lat,lng:e.lon??e.center?.lon,t:e.tags||{}})).filter(p=>p.lat!=null);osmKey=bb;
+  if(!osmG)osmG=L.layerGroup();osmG.clearLayers();const cnt={};
+  osmPts.forEach(p=>{const o=OT(p.t);cnt[o[1]]=(cnt[o[1]]||0)+1;L.circleMarker([p.lat,p.lng],{radius:o[3]>9?9:6,color:o[2],fillColor:o[2],fillOpacity:.8,weight:2}).bindPopup(`<b>${o[0]} ${esc(p.t.name||p.t["name:th"]||o[1])}</b><br>${o[1]}<br><a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}" target="_blank" rel="noopener">🧭 นำทาง</a>`).addTo(osmG)});
+  INF.osm=`♻️ OpenStreetMap ในกรอบแผนที่: ${osmPts.length?Object.entries(cnt).map(([k,v])=>k+" "+v).join(" · "):"ไม่พบจุดที่ติดแท็กไว้ (ข้อมูลอาจยังไม่ครบ)"}`;syncOv2();
+ }catch{INF.osm="♻️ โหลดข้อมูล OSM ไม่ได้ (เซิร์ฟเวอร์ไม่ว่าง) ลองเลื่อนแผนที่อีกครั้ง";info()}
+ osmBusy=false;
+}
+/* วิเคราะห์จุดที่แตะ */
+async function inspect(ll){
+ const{lat,lng}=ll;insP=(insP||L.popup({maxWidth:270})).setLatLng(ll).setContent("🔎 กำลังวิเคราะห์พื้นที่…").openOn(map);
+ const nr=reports.filter(r=>dist(lat,lng,r.lat,r.lng)<=1),kg=nr.reduce((a,r)=>a+kgOf(r),0),hz=nr.reduce((a,r)=>a+(TW[r.type]?kgOf(r):0),0);
+ const os=osmPts.filter(p=>dist(lat,lng,p.lat,p.lng)<=2),lf=os.filter(p=>p.t.landuse==="landfill"||p.t.amenity==="waste_disposal").length;
+ let aq=null,cap="";
+ try{aq=(await(await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&current=us_aqi,pm2_5`)).json()).current}catch{}
+ try{
+  const j=await(await fetch(`https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/identify?f=json&geometry=${lng},${lat}&geometryType=esriGeometryPoint&sr=4326&layers=all&tolerance=2&mapExtent=${lng-.001},${lat-.001},${lng+.001},${lat+.001}&imageDisplay=400,400,96&returnGeometry=false`)).json();
+  const a=(j.results||[]).map(r=>r.attributes||{}).find(a=>a.SRC_DATE2||a.SRC_DATE);
+  if(a){const d=a.SRC_DATE2||new Date(+a.SRC_DATE).toISOString().slice(0,10);cap=`🛰️ ภาพความละเอียดสูงตรงจุดนี้ถ่ายเมื่อ ${esc(String(d).slice(0,10))}${a.SRC_RES?" (≈"+esc(String(a.SRC_RES))+" ม./พิกเซล)":""}<br>`}
+ }catch{}
+ let sc=0;const a=aq?.us_aqi;if(a!=null)sc+=a>150?3:a>100?2:a>50?1:0;if(nr.length)sc+=1+(kg>=50?1:0)+(hz>0?2:0);sc+=Math.min(lf,2);
+ const lv=sc>=5?["สูง","#e5484d"]:sc>=3?["ปานกลาง","#d98a00"]:["ต่ำ","#1b8a5a"];
+ insP.setContent(`<b>🔎 วิเคราะห์พื้นที่นี้</b><br><span style="color:${lv[1]};font-weight:600">ดัชนีเสี่ยงรวม: ${lv[0]}</span><br>`
+  +(a!=null?`🌫️ AQI ${a} (${AQL(a)[0]}) · PM2.5 ${Math.round(aq.pm2_5)} µg/ลบ.ม.<br>`:"🌫️ โหลดค่าอากาศไม่ได้<br>")
+  +`📍 รายงานขยะในรัศมี 1 กม.: ${nr.length} จุด${nr.length?` ≈${fKg(kg)}${hz?` (อันตราย ≈${fKg(hz)})`:""}`:""}<br>`
+  +(osmOn?`♻️ OSM ในรัศมี 2 กม.: ${os.length} จุด (หลุมฝังกลบ/ที่ทิ้งขยะ ${lf})<br>`:"♻️ เปิดชั้น ♻️ จุดขยะ (OSM) เพื่อรวมข้อมูลนี้<br>")
+  +cap+`<small style="color:#777">ค่าอากาศเป็นแบบจำลองระดับภูมิภาค ไม่ใช่เซนเซอร์ที่จุดนี้ · ดัชนีรวมเป็นสูตรประมาณการ ไม่ใช่การประเมินทางการ</small><br><a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" rel="noopener">🧭 นำทาง</a> <button onclick="addPlace(${lat},${lng})">⭐ ติดตามจุดนี้</button>`);
+}
+
+/* ---------- v8: ภาพดาวเทียมให้ใกล้ปัจจุบันขึ้น + เครื่องมือเทียบ ---------- */
+let blendOn=false,hlsOn=false,hlsOK=false,hlsD=null,hlsCfg=null,blendL=null,hlsG=null,HLSINFO="";
+const userKey=()=>ld("sw_key",null);
+INF.note="ℹ️ ภาพความละเอียดสูงแบบฟรีอาจเก่ากว่า Google (ใช้ภาพเชิงพาณิชย์) · ตัวช่วย: ◐ ซ้อน NASA วันนี้ · 🕘 ย้อนดูรุ่นภาพ · 🗝️ ใส่คีย์ของคุณในโปรไฟล์ · 🔗 เทียบ Google";
+function mkUsr(){
+ const k=userKey();if(!k||!k.key||!map)return;
+ const u=k.p==="mapbox"?`https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}?access_token=${encodeURIComponent(k.key)}`:`https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=${encodeURIComponent(k.key)}`;
+ const w=base.usr&&map.hasLayer(base.usr);if(w)map.removeLayer(base.usr);
+ base.usr=L.tileLayer(u,{maxZoom:20,maxNativeZoom:20,attribution:k.p==="mapbox"?"© Mapbox © Maxar © OpenStreetMap":"© MapTiler © OpenStreetMap"});if(w)base.usr.addTo(map);
+}
+function mkBlend(){
+ const w=blendL&&map.hasLayer(blendL);if(w)map.removeLayer(blendL);
+ blendL=gibs("VIIRS_SNPP_CorrectedReflectance_TrueColor","jpg");blendL.setOpacity(+$("blR").value);if(w)blendL.addTo(map);
+}
+$("blR").oninput=()=>blendL&&blendL.setOpacity(+$("blR").value);
+function fillWB(all){
+ const seen=new Set(),list=all.filter(x=>!seen.has(x.d)&&seen.add(x.d)).slice(0,30);
+ WBL=list;fillCmp();$("wbSel").innerHTML=list.map(x=>`<option value="${x.k}">${x.d}</option>`).join("");
+ $("wbSel").onchange=()=>{
+  const e=list.find(x=>x.k===$("wbSel").value);if(!e||!map)return;
+  const w=map.hasLayer(base.wb);if(w)map.removeLayer(base.wb);
+  base.wb=L.tileLayer(`https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/GoogleMapsCompatible/MapServer/tile/${e.k}/{z}/{y}/{x}`,{maxZoom:20,maxNativeZoom:18,attribution:"Esri Wayback "+e.d});
+  if(w||mode==="wb")base.wb.addTo(map);INF.wb=`🛰️ Esri รุ่น ${e.d} · เลือกรุ่นเก่า/ใหม่เพื่อเทียบว่าพื้นที่เปลี่ยนไปไหม`;info();
+ };
+}
+async function probeHLS(){
+ const has=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(true);i.onerror=()=>r(false);i.src=u});
+ const C=["HLS_S30_Nadir_BRDF_Adjusted_Reflectance","HLS_L30_Nadir_BRDF_Adjusted_Reflectance"];
+ search:for(let k=0;k<6;k++){
+  const d=ymd(new Date(Date.now()-k*864e5));
+  for(const l of C)for(const x of["png","jpg"])for(const[tx,ty]of[[199,118],[200,118]])
+   if(await has(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${l}/default/${d}/GoogleMapsCompatible_Level12/8/${ty}/${tx}.${x}`)){hlsCfg={l,x};hlsD=d;hlsOK=true;break search}
+ }
+ if(!hlsOK)return;
+ hlsG=L.layerGroup();const n=hlsCfg.x==="png"?3:1;
+ for(let i=n-1;i>=0;i--)hlsG.addLayer(L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${hlsCfg.l}/default/${ymd(new Date(Date.parse(hlsD)-i*864e5))}/GoogleMapsCompatible_Level12/{z}/{y}/{x}.${hlsCfg.x}`,{maxNativeZoom:12,maxZoom:20,attribution:"NASA HLS"}));
+ HLSINFO=`🛰️ NASA HLS (Sentinel-2/Landsat ~30 ม.): พบข้อมูลล่าสุด ${hlsD}${n>1?" (ซ้อน 3 วันเติมช่องว่าง)":""} · ถ่ายเป็นแถบตามเส้นทางดาวเทียม จึงมีช่องว่างและเมฆ`;renderMap();
+}
+$("keyP").value=(userKey()||{}).p||"mapbox";$("keyV").value=(userKey()||{}).key||"";
+$("keySave").onclick=()=>{
+ const v=$("keyV").value.trim();
+ if(!v){localStorage.removeItem("sw_key");if(mode==="usr"&&map)setBase("street");toast("ลบคีย์แล้ว")}
+ else{localStorage.sw_key=JSON.stringify({p:$("keyP").value,key:v});toast("บันทึกคีย์แล้ว ไปที่แผนที่แล้วเลือก 🗝️ ดาวเทียมคีย์ของคุณ")}
+ if(map){mkUsr();renderMap()}
+};
+
+/* ======================= v9 ======================= */
+const OPENR=r=>r.status!=="แก้ไขแล้ว",rc=r=>r.status==="แก้ไขแล้ว"?"#8a9a92":COL[r.severity];
+BADGES.cleaner=["🧹","ผู้พิทักษ์ความสะอาด"];
+const REG=[["กรุงเทพฯ",13.75,100.5],["เชียงใหม่",18.79,98.98],["ขอนแก่น",16.44,102.83],["นครราชสีมา",14.97,102.1],["ชลบุรี",13.36,100.98],["ระยอง",12.68,101.28],["พิษณุโลก",16.82,100.26],["สงขลา",7.0,100.47],["ภูเก็ต",7.88,98.39]];
+const AQL=a=>a<=50?["ดี","#2e9e5b"]:a<=100?["ปานกลาง","#d4a900"]:a<=150?["เริ่มมีผลต่อกลุ่มเสี่ยง","#ff8c1a"]:a<=200?["มีผลต่อสุขภาพ","#e5484d"]:a<=300?["อันตรายมาก","#8f3fbf"]:["อันตรายสูงสุด","#7e0023"];
+const hhmm=t=>new Date(t).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})+" น.";
+const ago=t=>{const m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+" นาที":m<1440?Math.round(m/60)+" ชม.":Math.round(m/1440)+" วัน"};
+let WP=ld("sw_wp",[]);const saveWP=()=>localStorage.setItem("sw_wp",JSON.stringify(WP));
+const dl=(n,t,ty)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:ty}));a.download=n;a.click()};
+
+/* ---- ภารกิจรายวัน ---- */
+function renderQuests(){
+ const d=P.daily||{},Q=[["สแกนขยะ 3 ชิ้น",d.count||0,3],["รายงานจุดขยะ 1 จุด",d.rep||0,1],["ดูคุณภาพอากาศวันนี้",d.aq||0,1]];
+ $("ql").innerHTML=Q.map(([t,n,m])=>`<div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:8px"><span style="flex:1">${n>=m?"✅":"⬜"} ${t}</span><div class="bar" style="width:70px;margin:0"><i style="width:${Math.min(n/m,1)*100}%"></i></div><b>${Math.min(n,m)}/${m}</b></div>`).join("")+`<div class="mu">${d.bonus?"🎁 รับโบนัส +30 XP วันนี้แล้ว":"ทำครบ 3 ภารกิจรับโบนัส +30 XP"}</div>`;
+ if(Q.every(([,n,m])=>n>=m)&&!d.bonus){d.bonus=1;P.xp+=30;saveP();toast("🎁 ภารกิจครบ! โบนัส +30 XP");renderPlayer();renderQuests()}
+}
+/* ---- งานกับรายงาน ---- */
+const rpFind=id=>reports.find(r=>r.id===id);
+function rpAct(id,a){
+ const r=rpFind(id);if(!r)return;
+ if(a==="cf"){if(r.mine)return toast("คุณยืนยันจุดนี้แล้ว");r.mine=1;r.cf=(r.cf||0)+1;P.xp+=5;toast("👍 ขอบคุณที่ยืนยัน +5 XP")}
+ if(a==="wip"){r.status="กำลังเก็บ";toast("🧹 อัปเดตสถานะแล้ว")}
+ if(a==="done"){if(r.status==="แก้ไขแล้ว")return;r.status="แก้ไขแล้ว";r.doneAt=Date.now();P.xp+=50;if(!P.badges.includes("cleaner")){P.badges.push("cleaner");toast("🏅 ปลดล็อก: ผู้พิทักษ์ความสะอาด")}toast("✅ เก็บแล้ว +50 XP")}
+ saveR();saveP();if(map)map.closePopup();renderMap();
+}
+function rpShare(id){
+ const r=rpFind(id);if(!r)return;const t=`🗑️ จุดขยะ: ${r.place} (${r.province}) ระดับ${r.severity} ≈${fKg(kgOf(r))}\nhttps://www.google.com/maps?q=${r.lat},${r.lng}`;
+ if(navigator.share)navigator.share({title:"SmartWaste",text:t}).catch(()=>{});else{navigator.clipboard?.writeText(t).catch(()=>{});toast("คัดลอกข้อความแล้ว")}
+}
+function rpIcs(id){
+ const r=rpFind(id);if(!r)return;const v=prompt("นัดเก็บขยะวันเวลา (เช่น 2026-12-05 08:00)",ymd(new Date(Date.now()+7*864e5))+" 08:00"),m=(v||"").match(/(\d{4})-(\d\d)-(\d\d)\D+(\d\d):(\d\d)/);
+ if(!m)return v&&toast("รูปแบบวันเวลาไม่ถูกต้อง");
+ const z=n=>String(n).padStart(2,"0"),now=new Date(),st=`${m[1]}${m[2]}${m[3]}T${m[4]}${m[5]}00`,cl=s=>String(s).replace(/[\r\n,;]/g," ");
+ dl("cleanup.ics",["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SmartWaste//TH","BEGIN:VEVENT",`UID:${r.id}@smartwaste`,`DTSTAMP:${now.getUTCFullYear()}${z(now.getUTCMonth()+1)}${z(now.getUTCDate())}T${z(now.getUTCHours())}${z(now.getUTCMinutes())}00Z`,`DTSTART:${st}`,"DURATION:PT2H",`SUMMARY:นัดเก็บขยะ ${cl(r.place)}`,`LOCATION:${cl(r.place+" "+r.province)}`,`GEO:${r.lat};${r.lng}`,"END:VEVENT","END:VCALENDAR"].join("\r\n"),"text/calendar");
+}
+let gfLast=0;
+function geoAlert(a,b){if(Date.now()-gfLast<6e4)return;const z=ZN.find(z=>z.lv>=2&&dist(a,b,z.lat,z.lng)<=.4);if(z){gfLast=Date.now();navigator.vibrate?.([200,100,200]);toast(`⚠️ คุณอยู่ใกล้เขต${LV[z.lv][0]}: ${z.items[0].place}`)}}
+
+/* ---- จุดที่ติดตาม ---- */
+async function addPlace(lat,lng){
+ let n=lat.toFixed(3)+","+lng.toFixed(3);
+ try{const j=await(await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&accept-language=th&lat=${lat}&lon=${lng}`)).json(),a=j.address||{};n=[a.suburb||a.village||a.town||a.city_district,a.state].filter(Boolean).join(" ")||n}catch{}
+ if(WP.length>=8)WP.shift();WP.push({n:n.slice(0,40),lat,lng});saveWP();drawWP();toast("⭐ ติดตามจุดนี้แล้ว (ดูคุณภาพอากาศในแท็บเฝ้าระวัง)");
+}
+function drawWP(){
+ $("wp").innerHTML=WP.length?WP.map((p,i)=>`<div class="rep"><div><b style="font-size:14px;font-weight:500">${esc(p.n)}</b><p>${p.lat.toFixed(3)}, ${p.lng.toFixed(3)}</p></div><button class="btn r sm" style="margin-left:auto" data-d="${i}">ลบ</button></div>`).join(""):'<p class="mu">ยังไม่มี แตะ 🔎 วิเคราะห์จุดบนแผนที่ แล้วเลือก ⭐ ติดตามจุดนี้</p>';
+ $("wp").querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{WP.splice(+b.dataset.d,1);saveWP();drawWP()});fillWx();
+}
+/* ---- อากาศ + พยากรณ์ ---- */
+function notify(t,b){const k="sw_nt"+t;if(Date.now()-(+localStorage[k]||0)<108e5)return;localStorage[k]=Date.now();toast("🔔 "+b);if("Notification" in window&&Notification.permission==="granted")new Notification("SmartWaste",{body:b,icon:"icon-192.png"})}
+$("alT").value=localStorage.sw_alT||"0";
+$("alT").onchange=async()=>{localStorage.sw_alT=$("alT").value;if($("alT").value!=="0"&&"Notification" in window&&Notification.permission==="default")await Notification.requestPermission()};
+async function loadAQ(){
+ fillWx();
+ const R=[...(pos?[["📍 ตำแหน่งของฉัน",pos.lat,pos.lng]]:[]),...WP.map(p=>["⭐ "+p.n,p.lat,p.lng]),...REG];
+ try{
+  const j=await(await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${R.map(x=>x[1]).join(",")}&longitude=${R.map(x=>x[2]).join(",")}&current=us_aqi,pm2_5&timezone=Asia%2FBangkok`)).json();
+  const A=(Array.isArray(j)?j:[j]).map((d,i)=>({n:R[i][0],a:d.current?.us_aqi,p:d.current?.pm2_5}));
+  localStorage.sw_aq=JSON.stringify({A,at:Date.now()});drawAQ(A,Date.now());
+ }catch{const c=ld("sw_aq",null);c?drawAQ(c.A,c.at,true):$("aq").innerHTML='<p class="mu">โหลดข้อมูลอากาศไม่ได้ ตรวจสอบอินเทอร์เน็ต</p>'}
+}
+function drawAQ(A,at,old){
+ const ok=A.filter(x=>x.a!=null);if(!ok.length)return;const f=ok[0],w=ok.slice().sort((a,b)=>b.a-a.a)[0];
+ $("bAQ").textContent=f.a;$("bAQn").textContent="AQI "+f.n;
+ $("alertBar").style.display=f.a>100&&!old?"block":"none";$("alertBar").innerHTML=`😷 ${esc(f.n)} · AQI ${f.a} (${AQL(f.a)[0]}) — สวมหน้ากาก N95 และลดกิจกรรมกลางแจ้ง`;
+ const thr=+localStorage.sw_alT||0;if(thr&&f.a>=thr&&!old)notify("aq",`${f.n}: AQI ${f.a} (${AQL(f.a)[0]})`);
+ $("aq").innerHTML=`<div class="tip" style="background:${AQL(w.a)[1]}22">${w.a>100?"😷 ":w.a>50?"⚠️ ":"😊 "}สูงสุดตอนนี้: <b>${esc(w.n)}</b> AQI ${w.a} (${AQL(w.a)[0]})<br>${w.a>100?"ควรสวมหน้ากาก N95 ลดกิจกรรมกลางแจ้ง โดยเฉพาะเด็ก ผู้สูงอายุ และผู้มีโรคทางเดินหายใจ":w.a>50?"กลุ่มเสี่ยงควรสังเกตอาการและลดกิจกรรมหนักกลางแจ้ง":"อากาศดี ทำกิจกรรมกลางแจ้งได้"}</div>`
+ +ok.map(x=>`<div class="rep"><div><b style="font-size:14px;font-weight:500">${esc(x.n)}</b><p>PM2.5 ${x.p!=null?Math.round(x.p):"–"} µg/ลบ.ม.</p></div><span class="sv" style="margin-left:auto;background:${AQL(x.a)[1]};color:#fff;font-size:13px;padding:4px 11px">${x.a}</span></div>`).join("")
+ +`<p class="mu" style="margin-top:8px">US AQI จากแบบจำลอง CAMS (ไม่ใช่ค่าสถานีวัด/ไม่ใช่ AQI ของกรมควบคุมมลพิษ) · อัปเดต ${hhmm(at)}${old?" (ข้อมูลเก่า ออฟไลน์)":""}</p>`;
+}
+function fillWx(){
+ const cur=$("wxP").value,o=[...(pos?[["📍 ตำแหน่งของฉัน",pos.lat,pos.lng]]:[]),...WP.map(p=>["⭐ "+p.n,p.lat,p.lng]),...REG];
+ $("wxP").innerHTML=o.map(([n,a,b])=>`<option value="${a},${b}">${esc(n)}</option>`).join("");if(cur&&[...$("wxP").options].some(x=>x.value===cur))$("wxP").value=cur;
+}
+$("wxP").onchange=()=>loadWx();
+const uvL=u=>u>=11?"รุนแรง":u>=8?"สูงมาก":u>=6?"สูง":u>=3?"ปานกลาง":"ต่ำ";
+async function loadWx(){
+ const v=$("wxP").value;if(!v)return;const[lat,lng]=v.split(",").map(Number);
+ try{
+  const[w,a]=await Promise.all([
+   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m&daily=uv_index_max,precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=1`).then(r=>r.json()),
+   fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&hourly=us_aqi&forecast_days=2&timezone=Asia%2FBangkok`).then(r=>r.json())]);
+  const c=w.current,uv=w.daily?.uv_index_max?.[0],pp=w.daily?.precipitation_probability_max?.[0];
+  const key=new Date().toLocaleString("sv-SE",{timeZone:"Asia/Bangkok"}).slice(0,13).replace(" ","T"),T=a.hourly?.time||[],V=a.hourly?.us_aqi||[],i0=Math.max(0,T.findIndex(t=>t.startsWith(key)));
+  const F=T.slice(i0,i0+24).map((t,i)=>({t,a:V[i0+i]})).filter(x=>x.a!=null),pk=F.slice().sort((x,y)=>y.a-x.a)[0];
+  $("wx").innerHTML=`<div class="z3"><div><b>${Math.round(c.temperature_2m)}°</b><span>อุณหภูมิ (รู้สึก ${Math.round(c.apparent_temperature)}°)</span></div><div><b>${Math.round(c.relative_humidity_2m)}%</b><span>ความชื้น</span></div><div><b>${uv!=null?Math.round(uv):"–"}</b><span>UV สูงสุด (${uv!=null?uvL(uv):"–"})</span></div></div>
+  <div class="mu" style="margin:8px 0">🌧️ โอกาสฝนสูงสุดวันนี้ ${pp??"–"}% · ลม ${Math.round(c.wind_speed_10m)} กม./ชม.${c.apparent_temperature>=41?" · 🥵 ร้อนจัด ดื่มน้ำบ่อย เลี่ยงแดดจัด":""}${uv>=8?" · ☀️ UV สูง ควรทากันแดด":""}</div>
+  ${F.length?`<div style="font-size:13px;font-weight:500">พยากรณ์ฝุ่น (AQI) 24 ชม.ข้างหน้า</div><div class="bars">${F.map(x=>`<i title="${x.t.slice(11,16)} AQI ${x.a}" style="height:${Math.max(4,Math.min(x.a,200)/200*60)}px;background:${AQL(x.a)[1]}"></i>`).join("")}</div><div class="mu" style="display:flex;justify-content:space-between"><span>ตอนนี้</span><span>+12 ชม.</span><span>+24 ชม.</span></div><div class="mu" style="margin-top:4px">สูงสุดราว ${pk.t.slice(11,16)} น. AQI ${pk.a} (${AQL(pk.a)[0]})</div>`:""}`;
+  const thr=+localStorage.sw_alT||0;if(thr&&pk&&pk.a>=thr)notify("fc","คาดว่า AQI จะถึง "+pk.a+" ราว "+pk.t.slice(11,16)+" น.");
+ }catch{$("wx").innerHTML='<p class="mu">โหลดสภาพอากาศไม่ได้ ตรวจสอบอินเทอร์เน็ต</p>'}
+}
+/* ---- ข่าว v2: Google News (ผ่าน rss2json) + GDELT ---- */
+const NCAT={
+ all:{t:"ทั้งหมด",k:["ขยะ","มลพิษ","PM2.5","สิ่งแวดล้อม","น้ำเสีย"],e:['"air pollution"','"plastic pollution"','"waste management"']},
+ pm:{t:"🌫️ ฝุ่น PM2.5",k:["PM2.5","ฝุ่น","หมอกควัน"],e:['"PM2.5"','"air pollution"','haze']},
+ waste:{t:"🗑️ ขยะ/พลาสติก",k:["ขยะ","พลาสติก","รีไซเคิล","หลุมฝังกลบ"],e:['"plastic waste"','recycling','landfill']},
+ water:{t:"💧 น้ำ/แม่น้ำ/ทะเล",k:["น้ำเสีย","มลพิษทางน้ำ","ขยะทะเล"],e:['"water pollution"','"marine plastic"','"river pollution"']},
+ fire:{t:"🔥 ไฟป่า/เผา",k:["ไฟป่า","เผาในที่โล่ง","จุดความร้อน"],e:['wildfire','"forest fire"','"open burning"']},
+ clim:{t:"🌡️ โลกร้อน/ภัยพิบัติ",k:["โลกร้อน","น้ำท่วม","ภัยแล้ง"],e:['"climate change"','flood','drought']}
+};
+let nCat="all",nSrc="all",nQ="",NSV=ld("sw_nsv",[]),nTok=0,CUR=[],gdT=0;
+const norm=t=>String(t).toLowerCase().replace(/[\s"'“”‘’.,:;!?()\-–—|\[\]]+/g,"").slice(0,40);
+function merge(a){const s=new Set();return a.filter(x=>x.t&&/^https?:/.test(x.u)&&(k=>!s.has(k)&&s.add(k))(norm(x.t))).sort((p,q)=>(q.ts||0)-(p.ts||0)).slice(0,40)}
+const gdFetch=async u=>{const w=Math.max(0,gdT+5200-Date.now());gdT=Date.now()+w;await new Promise(r=>setTimeout(r,w));return fetch(u)};
+const qj=k=>k.map(x=>/\s/.test(x)?`"${x}"`:x).join(" OR ");
+async function gnews(c){
+ const q=`(${qj(c.k)})${nQ?" "+nQ:""} when:3d`,j=await(await fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(`https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=th&gl=TH&ceid=TH:th`))).json();
+ if(j.status!=="ok")throw 0;
+ return j.items.slice(0,30).map(x=>{const m=String(x.title).match(/^(.*) - ([^-]+)$/);return{t:m?m[1]:x.title,d:m?m[2]:"Google News",u:x.link,ts:Date.parse(String(x.pubDate).replace(" ","T")+"Z")}});
+}
+async function gdelt(c){
+ const th=nSrc!=="gl",q=`(${th?qj(c.k):c.e.join(" OR ")})${nQ?" "+nQ:""} sourcelang:${th?"thai":"english"}`,
+ j=JSON.parse(await(await gdFetch(`https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(q)}&mode=ArtList&format=json&maxrecords=30&sort=DateDesc&timespan=3d`)).text());
+ return(j.articles||[]).map(x=>({t:x.title,d:x.domain,u:x.url,ts:Date.parse((x.seendate||"").replace(/(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)Z/,"$1-$2-$3T$4:$5:$6Z"))}));
+}
+function drawNC(){
+ $("nc").innerHTML=Object.entries(NCAT).map(([k,c])=>`<button class="chip ${nCat===k?"on":""}" data-c="${k}">${c.t}</button>`).join("")+'<button class="chip" data-c="_me">📍 จังหวัดของฉัน</button>';
+ $("nc").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{const k=b.dataset.c;if(k==="_me"){const p=$("pv2").value;if(!p)return toast("ยังไม่ทราบจังหวัด: ลองรายงานขยะหรือใช้ GPS ในแท็บแผนที่ก่อน");nQ=p;$("nq").value=p}else nCat=k;newsGo()});
+}
+function drawNews(a,at,old,part){
+ CUR=a;
+ $("news").innerHTML=(a.length?a.map((x,i)=>{const sv=NSV.some(s=>s.u===x.u),fresh=x.ts&&Date.now()-x.ts<108e5;return`<div class="nw2"><a class="nw" href="${esc(x.u)}" target="_blank" rel="noopener"><b>${esc(x.t)}</b><span>${esc(x.d||"")}${x.ts?" · "+ago(x.ts)+"ที่แล้ว":""}${fresh?' · <em style="color:var(--rd);font-style:normal">ใหม่</em>':""}</span></a><button class="stb" data-i="${i}" aria-label="บันทึก">${sv?"⭐":"☆"}</button></div>`}).join(""):'<p class="mu">ไม่พบข่าวในช่วง 3 วันล่าสุด ลองเปลี่ยนหมวดหรือคำค้น</p>')
+ +`<p class="mu" style="margin-top:8px">แสดงเฉพาะหัวข้อและลิงก์ไปยังต้นทาง · Google News + GDELT${at?" · อัปเดต "+hhmm(at):""}${old?" (ข้อมูลเก่า)":""}${part?" · กำลังโหลดเพิ่ม…":""}</p>`;
+ $("news").querySelectorAll(".stb").forEach(b=>b.onclick=()=>{const x=CUR[+b.dataset.i],j=NSV.findIndex(s=>s.u===x.u);if(j>=0)NSV.splice(j,1);else NSV.unshift(x);NSV=NSV.slice(0,50);localStorage.sw_nsv=JSON.stringify(NSV);b.textContent=j>=0?"☆":"⭐"});
+}
+async function newsGo(force){
+ drawNC();const tok=++nTok;$("ns").value=nSrc;
+ if(nSrc==="sv")return drawNews(NSV);
+ const key="sw_nc_"+[nCat,nSrc,nQ].join("|"),c=ld(key,null),cat=NCAT[nCat];
+ if(c&&!force&&Date.now()-c.at<9e5)return drawNews(c.a,c.at);
+ $("news").innerHTML='<p class="mu">กำลังโหลดข่าว…</p>';let items=[];
+ const part=f=>f().then(a=>{items=items.concat(a);if(tok===nTok)drawNews(merge(items),Date.now(),false,true)}).catch(()=>{});
+ await Promise.all([...(nSrc!=="gl"?[part(()=>gnews(cat))]:[]),part(()=>gdelt(cat))]);
+ if(tok!==nTok)return;const m=merge(items);
+ if(m.length){localStorage[key]=JSON.stringify({a:m,at:Date.now()});drawNews(m,Date.now())}
+ else if(c)drawNews(c.a,c.at,true);else $("news").innerHTML='<p class="mu">โหลดข่าวไม่ได้ในขณะนี้ (แหล่งข่าวจำกัดจำนวนครั้ง) ลองกด ↻ อีกครั้งในอีกสักครู่</p>';
+}
+const loadNews=(_,f)=>newsGo(f);
+$("nq").onchange=()=>{nQ=$("nq").value.trim();newsGo()};$("ns").onchange=()=>{nSrc=$("ns").value;newsGo()};
+function watchOpen(){
+ renderPlayer();if(!P.daily.aq){P.daily.aq=1;saveP();renderQuests()}
+ watchRender();loadAQ();loadWx();newsGo();
+ if(!wTimer)wTimer=setInterval(()=>{if($("v-watch").classList.contains("on")){loadAQ();loadWx();newsGo(true)}},9e5);
+}
+/* ---- ฐานความรู้: ทิ้งยังไงดี ---- */
+const WK=[
+["ขวดน้ำพลาสติก PET ขวดน้ำดื่ม","พลาสติก","เทน้ำ ถอดฝาและฉลาก บีบแบน → ถังเหลือง"],
+["ฝาขวด ฝาพลาสติก","พลาสติก","แยกจากขวด ล้างให้สะอาด → ถังเหลือง หรือจุดรับฝาขวดในพื้นที่"],
+["ถุงพลาสติก ถุงก๊อบแก๊บ ฟิล์มห่อ","พลาสติก","ถ้าสะอาดและแห้ง รวมส่งจุดรับถุงพลาสติก ถ้าเปื้อนทิ้งถังน้ำเงิน"],
+["กล่องโฟม โฟมใส่อาหาร","ขยะทั่วไป","รีไซเคิลยาก ทิ้งถังน้ำเงิน และพยายามลดการใช้"],
+["หลอดดูด ช้อนส้อมพลาสติก แก้วพลาสติกเปื้อน","ขยะทั่วไป","ชิ้นเล็กหรือเปื้อน รีไซเคิลยาก ทิ้งถังน้ำเงิน"],
+["กล่องนม กล่อง UHT กล่องเครื่องดื่ม","กระดาษ","เทของเหลว ล้าง แบนกล่อง → ถังเหลือง หรือจุดรับกล่องเครื่องดื่ม"],
+["กล่องพิซซ่า กล่องกระดาษเปื้อนน้ำมัน","กระดาษ","ส่วนสะอาดรีไซเคิลได้ ส่วนเปื้อนน้ำมันทิ้งถังน้ำเงิน"],
+["กระดาษทิชชู่ ผ้าเช็ดหน้า","ขยะทั่วไป","ใช้แล้วรีไซเคิลไม่ได้ ทิ้งถังน้ำเงิน"],
+["หนังสือพิมพ์ กระดาษ A4 ลังกระดาษ","กระดาษ","แห้ง สะอาด พับแบน → ถังเหลือง"],
+["กระป๋องน้ำอัดลม กระป๋องอะลูมิเนียม","โลหะ","เทของเหลว บีบแบน → ถังเหลือง"],
+["กระป๋องอาหาร กระป๋องปลา","โลหะ","ล้างเศษอาหาร ระวังคมของฝา → ถังเหลือง"],
+["ขวดแก้ว ขวดเบียร์ ขวดน้ำปลา","แก้ว","ล้าง ถอดฝา → ถังเหลือง หรือคืนร้านรับซื้อ"],
+["เศษแก้วแตก","แก้ว","ห่อกระดาษหนา เขียนกำกับว่าแก้วแตก → ถังน้ำเงิน"],
+["เศษอาหาร เปลือกผลไม้ ก้างปลา","ขยะอินทรีย์","สะเด็ดน้ำ → ถังเขียว หรือทำปุ๋ยหมัก"],
+["น้ำมันพืชใช้แล้ว น้ำมันทอด","ขยะอันตราย","เก็บใส่ขวดปิดฝา ห้ามเทลงท่อ ส่งจุดรับของเทศบาล/ร้านรับซื้อ"],
+["ถ่านไฟฉาย แบตเตอรี่","ขยะอันตราย","ห้ามทิ้งรวม → ถังแดง หรือจุดรับขยะอันตราย"],
+["หลอดไฟ หลอดฟลูออเรสเซนต์ หลอด LED","ขยะอันตราย","ระวังแตก ใส่กล่องเดิม → ถังแดง หรือจุดรับ"],
+["ยาหมดอายุ ยาเม็ด ยาน้ำ","ขยะอันตราย","ห้ามเททิ้งลงท่อ → ส่งร้านยา/โรงพยาบาลที่รับ หรือถังแดง"],
+["กระป๋องสเปรย์ สีสเปรย์ ยาฆ่าแมลง","ขยะอันตราย","ใช้ให้หมดก่อน ห้ามเผาหรือเจาะ → ถังแดง หรือจุดรับ"],
+["โทรศัพท์เก่า สายชาร์จ หูฟัง คอมพิวเตอร์","ขยะอิเล็กทรอนิกส์","ถอดแบตเตอรี่ ลบข้อมูล → จุดรับ e-waste"],
+["ผ้าอ้อมสำเร็จรูป ผ้าอนามัย","ขยะทั่วไป","ห่อให้มิดชิด → ถังน้ำเงิน"],
+["หน้ากากอนามัย","ขยะทั่วไป","พับห่อใส่ถุงปิด ทิ้งถังน้ำเงินหรือถังขยะติดเชื้อตามที่เทศบาลกำหนด"],
+["ใบไม้ กิ่งไม้ เศษหญ้า","ขยะอินทรีย์","ทำปุ๋ยหมัก ห้ามเผา (เพิ่มฝุ่น PM2.5)"]];
+$("wq").oninput=()=>{const q=$("wq").value.trim().toLowerCase();$("wr").innerHTML=q?(WK.filter(w=>w[0].toLowerCase().includes(q)).slice(0,6).map(w=>`<div class="tip"><b>${byName(w[1]).i} ${w[0].split(" ")[0]}</b> → ${w[1]}<br>${w[2]}</div>`).join("")||'<p class="mu">ไม่พบ ลองสแกนด้วยกล้อง หรือสอบถามเทศบาลของคุณ</p>')+'<p class="mu">แนวทางทั่วไป เทศบาลแต่ละแห่งอาจต่างกัน</p>':""};
+/* ---- ส่งออก/สำรอง/ติดตั้ง ---- */
+$("expG").onclick=()=>dl("smartwaste.geojson",JSON.stringify({type:"FeatureCollection",features:reports.map(r=>({type:"Feature",geometry:{type:"Point",coordinates:[r.lng,r.lat]},properties:{...r,img:undefined}}))}),"application/geo+json");
+$("bak").onclick=()=>dl("smartwaste-backup.json",JSON.stringify({v:9,reports,player:P,knn:ld("sw_knn",[]),places:WP}),"application/json");
+$("rst").onchange=async e=>{
+ const f=e.target.files[0];e.target.value="";if(!f)return;
+ try{
+  const j=JSON.parse(await f.text());if(!Array.isArray(j.reports))throw 0;if(!confirm("กู้คืนจะแทนที่ข้อมูลปัจจุบันทั้งหมด ดำเนินการต่อ?"))return;
+  reports=j.reports.filter(r=>isFinite(r.lat)&&isFinite(r.lng)).map((r,i)=>({...r,id:+r.id||Date.now()+i,lat:+r.lat,lng:+r.lng}));
+  if(j.player&&typeof j.player==="object")Object.assign(P,j.player);if(Array.isArray(j.places)){WP=j.places;saveWP()}if(Array.isArray(j.knn))localStorage.sw_knn=JSON.stringify(j.knn);
+  saveR();saveP();drawWP();renderMap();toast("กู้คืนข้อมูลแล้ว");
+ }catch{toast("ไฟล์สำรองไม่ถูกต้อง")}
+};
+let dip=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dip=e;$("inst").style.display="inline-block"});
+$("inst").onclick=async()=>{if(!dip)return;dip.prompt();await dip.userChoice;dip=null;$("inst").style.display="none"};
+
+/* ---- แผนที่ v9: Sentinel-2 / แอนิเมชัน NASA / แหล่งมลพิษ / วัดพื้นที่ ---- */
+let s2On=false,s2L=null,s2Items=[],s2Busy=false,animT=null,animL=null,msrOn=false,msrPts=[],msrL=null,srcOn=false,srcG=null,srcKey="";
+function fillS2(){
+ $("s2Sel").innerHTML=s2Items.map(x=>`<option value="${x.id}">${x.d.slice(0,10)} · เมฆ ${Math.round(x.c)}%</option>`).join("");
+ $("s2Sel").onchange=()=>showS2($("s2Sel").value);
+}
+function showS2(id){
+ const it=s2Items.find(x=>x.id===id);if(!it||!map)return;if(s2L&&map.hasLayer(s2L))map.removeLayer(s2L);
+ s2L=L.tileLayer(`https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=${encodeURIComponent(id)}&assets=visual&asset_bidx=visual%7C1%2C2%2C3&nodata=0&format=png`,{maxNativeZoom:15,maxZoom:20,attribution:"Contains modified Copernicus Sentinel data (ESA) · Microsoft Planetary Computer"});
+ $("s2Sel").value=id;INF.s2=`🛰️ Sentinel-2 (10 ม.): ภาพถ่ายเมื่อ ${it.d.slice(0,10)} (${Math.max(0,Math.round((Date.now()-Date.parse(it.d))/864e5))} วันก่อน) · เมฆ ${Math.round(it.c)}% · ใหม่กว่าภาพ Esri ฟรีส่วนใหญ่ แต่คมน้อยกว่า`;syncOv2();
+}
+async function loadS2(){
+ if(!map||s2Busy)return;s2Busy=true;INF.s2="🛰️ กำลังค้นหาภาพ Sentinel-2 ล่าสุดตรงกลางแผนที่…";info();const c=map.getCenter();
+ try{
+  const j=await(await fetch("https://planetarycomputer.microsoft.com/api/stac/v1/search",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({collections:["sentinel-2-l2a"],intersects:{type:"Point",coordinates:[c.lng,c.lat]},datetime:new Date(Date.now()-60*864e5).toISOString()+"/"+new Date().toISOString(),query:{"eo:cloud_cover":{lt:50}},sortby:[{field:"datetime",direction:"desc"}],limit:10})})).json();
+  s2Items=(j.features||[]).map(f=>({id:f.id,d:f.properties.datetime,c:f.properties["eo:cloud_cover"]??0,b:f.bbox}));fillS2();
+  if(s2Items.length)showS2(s2Items[0].id);else{INF.s2="🛰️ ไม่พบภาพ Sentinel-2 ที่เมฆน้อยกว่า 50% ใน 60 วันล่าสุดบริเวณนี้";syncOv2()}
+ }catch{INF.s2="🛰️ ค้นหา Sentinel-2 ไม่ได้ (บริการอาจไม่ว่าง ลองใหม่)";info()}
+ s2Busy=false;
+}
+function toggleAnim(){
+ const u=d=>`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_SNPP_CorrectedReflectance_TrueColor/default/${d}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`;
+ if(animT){clearInterval(animT);animT=null;if(animL){map.removeLayer(animL);animL=null}INF.anim="";info();return renderMap()}
+ const days=[...Array(7)].map((_,i)=>ymd(new Date(Date.parse(gd)-(6-i)*864e5)));let i=0;
+ animL=L.tileLayer(u(days[0]),{maxNativeZoom:9,maxZoom:20,attribution:"NASA GIBS"}).addTo(map);INF.anim=`▶ NASA VIIRS รายวัน: ${days[0]} (1/7)`;info();
+ animT=setInterval(()=>{i=(i+1)%7;animL.setUrl(u(days[i]));INF.anim=`▶ NASA VIIRS รายวัน: ${days[i]} (${i+1}/7) — ดูการเคลื่อนของควันและเมฆ กดปุ่มเดิมเพื่อหยุด`;info()},1300);renderMap();
+}
+const sphArea=P=>{let s=0;const r=x=>x*Math.PI/180;for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];s+=(r(b.lng)-r(a.lng))*(2+Math.sin(r(a.lat))+Math.sin(r(b.lat)))}return Math.abs(s*6371008.8**2/2)};
+function drawMsr(){
+ if(!msrL)msrL=L.layerGroup().addTo(map);msrL.clearLayers();
+ msrPts.forEach(p=>L.circleMarker(p,{radius:4,color:"#2a7de1"}).addTo(msrL));let len=0;
+ for(let i=1;i<msrPts.length;i++)len+=dist(msrPts[i-1].lat,msrPts[i-1].lng,msrPts[i].lat,msrPts[i].lng);
+ if(msrPts.length>1)L.polyline(msrPts,{color:"#2a7de1"}).addTo(msrL);
+ let ar=0;if(msrPts.length>2){L.polygon(msrPts,{color:"#2a7de1",fillOpacity:.15,weight:1}).addTo(msrL);ar=sphArea(msrPts)}
+ $("msr").innerHTML=`📏 ระยะ ${fmtD(len)} · พื้นที่ ${ar?(ar>=1e4?(ar/1e4).toFixed(2)+" เฮกตาร์ ("+(ar/1600).toFixed(1)+" ไร่)":Math.round(ar)+" ตร.ม."):"–"} <button class="btn o sm" id="msrX">ล้าง</button>`;
+ $("msrX").onclick=()=>{msrPts=[];drawMsr()};
+}
+const SO=t=>t.power==="plant"?["⚡","โรงไฟฟ้า"+(t["plant:source"]?" ("+t["plant:source"]+")":""),"#c06a00"]:t.amenity==="incinerator"?["🔥","เตาเผาขยะ","#e5484d"]:["🏭","โรงงาน/สถานประกอบการ","#6b6b6b"];
+async function loadSrc(){
+ if(!map)return;if(map.getZoom()<11){INF.src="🏭 ซูมเข้าระดับ 11 ขึ้นไปเพื่อโหลดแหล่งกำเนิดมลพิษจาก OpenStreetMap";info();return}
+ const b=map.getBounds(),bb=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(v=>v.toFixed(3)).join(",");if(bb===srcKey)return;
+ INF.src="🏭 กำลังโหลดแหล่งมลพิษ…";info();if(osmBusy)await new Promise(r=>setTimeout(r,2500));
+ try{
+  const j=await(await fetch("https://overpass-api.de/api/interpreter",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(`[out:json][timeout:25];(nwr["power"="plant"](${bb});nwr["man_made"="works"](${bb});nwr["amenity"="incinerator"](${bb}););out center 250;`)})).json();
+  srcKey=bb;if(!srcG)srcG=L.layerGroup();srcG.clearLayers();let n=0;
+  j.elements.forEach(e=>{const la=e.lat??e.center?.lat,lo=e.lon??e.center?.lon;if(la==null)return;n++;const o=SO(e.tags||{});L.circleMarker([la,lo],{radius:7,color:o[2],fillColor:o[2],fillOpacity:.75,weight:2}).bindPopup(`<b>${o[0]} ${esc((e.tags||{}).name||o[1])}</b><br>${esc(o[1])}<br><a href="https://www.google.com/maps/dir/?api=1&destination=${la},${lo}" target="_blank" rel="noopener">🧭 นำทาง</a>`).addTo(srcG)});
+  INF.src=`🏭 OpenStreetMap ในกรอบแผนที่: พบโรงไฟฟ้า/โรงงาน/เตาเผาขยะ ${n} แห่ง (เฉพาะที่มีผู้บันทึกไว้ ไม่ใช่ข้อมูลการปล่อยมลพิษ)`;syncOv2();
+ }catch{INF.src="🏭 โหลดข้อมูล OSM ไม่ได้ (เซิร์ฟเวอร์ไม่ว่าง) ลองเลื่อนแผนที่อีกครั้ง";info()}
+}
+function syncV9(){
+ const sw=(on,l)=>{if(!l)return;if(on&&!map.hasLayer(l))l.addTo(map);else if(!on&&map.hasLayer(l))map.removeLayer(l)};
+ sw(s2On,s2L);if(!srcG)srcG=L.layerGroup();sw(srcOn,srcG);
+ if(!s2On)INF.s2="";if(!srcOn)INF.src="";
+ $("s2Row").style.display=s2On?"flex":"none";syncV10();$("msr").style.display=msrOn?"block":"none";
+}
+function initV9(){
+ map.on("moveend",()=>{
+  if(s2On&&s2Items.length){const c=map.getCenter(),b=(s2Items.find(x=>x.id===$("s2Sel").value)||s2Items[0]).b;if(b&&(c.lng<b[0]||c.lng>b[2]||c.lat<b[1]||c.lat>b[3]))loadS2()}
+  if(srcOn)loadSrc();
+ });
+ $("s2Re").onclick=loadS2;
+}
+$("rfNews").onclick=()=>newsGo(true);
+drawWP();renderQuests();
+
+/* ======================= v10 ======================= */
+let lastR=null,lastEmb2=null,knn2=ld("sw_knn2",[]),ACC=ld("sw_acc",{}),HIST=ld("sw_hist",[]);
+const accMul=n=>{const s=ACC[n];if(n==="เรียนรู้จากคุณ"||!s||s.n<5)return 1;return .5+(s.h+2)/(s.n+4)};
+function knnFrom(list,e,th){
+ if(list.length<3)return null;
+ const t=list.map(k=>[k.c,dot(k.e,e)]).sort((a,b)=>b[1]-a[1]).slice(0,5).filter(x=>x[1]>=th);if(!t.length)return null;
+ const r={};let z=0;t.forEach(([c,s])=>{r[c]=(r[c]||0)+s-th+.05;z+=s-th+.05});Object.keys(r).forEach(c=>r[c]/=z);return r;
+}
+const knnScores2=e=>knnFrom(knn2,e,.9);
+function recordAcc(f){
+ if(!lastR)return;const hit=(n,c)=>{const s=ACC[n]||(ACC[n]={n:0,h:0});s.n++;if(c===f)s.h++};
+ lastR.V.forEach(([n,,s])=>{if(n!=="เรียนรู้จากคุณ")hit(n,topOf(s)[0])});hit("_all",lastR.cat);localStorage.sw_acc=JSON.stringify(ACC);
+}
+function addHist(ps){
+ const c=document.createElement("canvas");c.width=c.height=72;try{c.getContext("2d").drawImage(crop($("pv")),0,0,72,72)}catch{}
+ HIST.unshift({t:Date.now(),c:ps,i:c.toDataURL("image/jpeg",.5),ok:!!(lastR&&ps.length===1&&lastR.cat===ps[0])});HIST=HIST.slice(0,30);
+ try{localStorage.sw_hist=JSON.stringify(HIST)}catch{HIST=HIST.slice(0,10)}
+}
+const _ok=$("ok").onclick;
+$("ok").onclick=()=>{
+ if(!picks.length)return;const n=picks.length,f=picks[0];
+ if(n===1)recordAcc(f);addHist(picks.slice());
+ if(!clip&&lastEmb2&&n===1){knn2.push({c:f,e:lastEmb2.map(v=>+v.toFixed(3))});if(knn2.length>150)knn2.shift();try{localStorage.setItem("sw_knn2",JSON.stringify(knn2))}catch{}}
+ _ok();renderAcc();renderHist();
+};
+const _mu=$("multi").onclick;$("multi").onclick=()=>{lastR=null;return _mu()};
+function renderAcc(){
+ const m=Object.entries(ACC).sort((a,b)=>a[0]==="_all"?-1:b[0]==="_all"?1:0).filter(([,s])=>s.n);
+ $("acc").innerHTML=m.length?m.map(([k,s])=>`<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>${k==="_all"?"🤖 ผลรวมของ AI":esc(k)}${k!=="_all"&&s.n>=5?` <small class="mu">(น้ำหนัก ×${accMul(k).toFixed(2)})</small>`:""}</span><b>${s.h}/${s.n} · ${Math.round(s.h/s.n*100)}%</b></div><div class="bar" style="margin-bottom:10px"><i style="width:${s.h/s.n*100}%"></i></div>`).join(""):'<p class="mu">ยังไม่มีข้อมูล สแกนแล้วกดยืนยันสัก 5 ครั้งขึ้นไป</p>';
+}
+function renderHist(){
+ $("his").innerHTML=HIST.length?HIST.map(h=>`<div style="display:flex;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--ln)"><img src="${esc(h.i)}" alt="" width="44" height="44" style="border-radius:10px;object-fit:cover"><div style="flex:1;font-size:13px">${h.c.map(c=>`${(byName(c)||{i:""}).i} ${esc(c)}`).join(", ")}<br><span class="mu">${new Date(h.t).toLocaleString("th-TH",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span></div><span class="sv ${h.ok?"s1":"s2"}">${h.ok?"AI ถูก":"คุณแก้"}</span></div>`).join(""):'<p class="mu">ยังไม่มีประวัติ</p>';
+}
+$("accX").onclick=()=>{if(confirm("รีเซ็ตสถิติความแม่นของ AI?")){ACC={};localStorage.removeItem("sw_acc");renderAcc()}};
+$("hisX").onclick=()=>{if(confirm("ล้างประวัติการสแกน?")){HIST=[];localStorage.removeItem("sw_hist");renderHist()}};
+renderAcc();renderHist();
+const _rp=renderPlayer;renderPlayer=function(){_rp();renderQuests()};
+/* ---- แนะนำการใช้งานครั้งแรก ---- */
+const OBS=[["📷","สแกนขยะด้วย AI","ถ่ายรูปหรือเลือกรูป AI หลายตัวช่วยกันโหวตว่าเป็นขยะประเภทไหน ทิ้งถังสีอะไร ถ้าทายผิดแตะแก้ได้ ระบบจะเรียนรู้จากคุณ"],["🗺️","แผนที่และดาวเทียม","รายงานจุดขยะ ดูภาพ NASA/Sentinel-2/ภาพละเอียดสูง จุดความร้อน PM2.5 และจุดรีไซเคิล แตะ 🔎 เพื่อวิเคราะห์พื้นที่"],["🌏","เฝ้าระวังรายวัน","คุณภาพอากาศ พยากรณ์ฝุ่น ข่าวสิ่งแวดล้อม และเขตเสี่ยงขยะ อัปเดตเองเมื่อเปิดแท็บ"],["🔒","ข้อมูลของคุณ","รูปถ่ายประมวลผลในเครื่อง ไม่อัปโหลด รายงานและคะแนนเก็บในเครื่องนี้ ตำแหน่งจะถูกส่งไปบริการแผนที่/อากาศเมื่อคุณใช้ฟีเจอร์นั้น ดูรายละเอียดในโปรไฟล์"]];
+let obI=0;
+function obDraw(){const o=OBS[obI];$("obc").innerHTML=`<div style="font-size:54px">${o[0]}</div><h2 style="margin:6px 0;font-weight:500">${o[1]}</h2><p class="mu" style="line-height:1.7;font-size:14px">${o[2]}</p><div class="mu">${obI+1}/${OBS.length}</div>`;$("obN").textContent=obI===OBS.length-1?"เริ่มใช้งาน":"ถัดไป"}
+$("obN").onclick=()=>{if(obI<OBS.length-1){obI++;obDraw()}else{localStorage.sw_ob="1";$("ob").close()}};
+$("obS").onclick=()=>{localStorage.sw_ob="1";$("ob").close()};
+if(!localStorage.sw_ob){obDraw();$("ob").showModal()}
+/* ---- ชั้นข้อมูลดาวเทียม NASA เพิ่มเติม (ตรวจก่อนว่ามีจริง) ---- */
+const GX=[
+["MODIS_Terra_Aerosol","🌫️ ฝุ่นละอองในอากาศ (AOD)","GoogleMapsCompatible_Level6","png","สีเหลือง→แดง = ฝุ่น/ควันในชั้นบรรยากาศมาก (วัดจากแสงทั้งคอลัมน์อากาศ ไม่ใช่ PM2.5 ที่พื้น)"],
+["MODIS_Terra_NDVI_8Day","🌿 พืชพรรณ (NDVI)","GoogleMapsCompatible_Level9","png","เขียวเข้ม = พืชหนาแน่น สีจาง/น้ำตาล = พื้นที่โล่ง เมือง หรือแห้งแล้ง"],
+["VIIRS_SNPP_DayNightBand_ENCC","🌃 แสงกลางคืน","GoogleMapsCompatible_Level8","png","สว่าง = พื้นที่เมือง/อุตสาหกรรม ใช้ดูการขยายตัวของชุมชน"],
+["VIIRS_NOAA20_Thermal_Anomalies_375m_All","🔥 จุดความร้อน NOAA-20","GoogleMapsCompatible_Level9","png","จุดความร้อนจากดาวเทียมอีกดวง ใช้คู่กับชั้น 🔥 เดิมเพื่อเพิ่มความถี่ในการตรวจ"]];
+let gxOK={},gxOn={},gxL={},cmpOn=false,cmpC=null,cmpA=null,cmpB=null,WBL=[];
+const hasTile=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(true);i.onerror=()=>r(false);i.src=u});
+const gxUrl=(id,m,x,d)=>`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${id}/default/${d}/${m}/{z}/{y}/{x}.${x}`;
+async function probeGX(){
+ for(const[id,,m,x]of GX){
+  for(let k=0;k<10;k++){const d=ymd(new Date(Date.parse(gd)-k*864e5));if(await hasTile(gxUrl(id,m,x,d).replace("{z}/{y}/{x}","4/7/12"))){gxOK[id]=d;break}}
+ }
+ renderMap();
+}
+function syncV10(){
+ const sw=(on,l)=>{if(!l)return;if(on&&!map.hasLayer(l))l.addTo(map);else if(!on&&map.hasLayer(l))map.removeLayer(l)};
+ const notes=[];
+ GX.forEach(([id,lab,m,x,note])=>{if(!gxOK[id])return;if(!gxL[id])gxL[id]=L.tileLayer(gxUrl(id,m,x,gxOK[id]),{maxNativeZoom:+m.replace(/\D/g,""),maxZoom:20,opacity:.7,attribution:"NASA GIBS"});sw(!!gxOn[id],gxL[id]);if(gxOn[id])notes.push(`${lab}: ข้อมูลวันที่ ${gxOK[id]} · ${note}`)});
+ INF.gx=notes.join("<br>");
+ $("cmpRow").style.display=cmpOn?"flex":"none";if(!cmpOn)INF.cmp="";
+}
+/* เทียบก่อน-หลัง (Wayback) */
+function fillCmp(){
+ $("cmpSel").innerHTML=WBL.slice(1).map(x=>`<option value="${x.k}">${x.d}</option>`).join("");
+ if(WBL.length>9)$("cmpSel").value=WBL[9].k;$("cmpSel").onchange=mkCmp;
+}
+function mkCmp(){
+ if(cmpC){try{cmpC.remove()}catch{}cmpC=null}[cmpA,cmpB].forEach(l=>l&&map.hasLayer(l)&&map.removeLayer(l));cmpA=cmpB=null;
+ if(!cmpOn||WBL.length<2)return;
+ const mk=k=>L.tileLayer(`https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/GoogleMapsCompatible/MapServer/tile/${k}/{z}/{y}/{x}`,{maxZoom:20,maxNativeZoom:18});
+ cmpA=mk($("cmpSel").value||WBL[WBL.length-1].k).addTo(map);cmpB=mk(WBL[0].k).addTo(map);cmpC=L.control.sideBySide(cmpA,cmpB).addTo(map);
+ INF.cmp=`↔ ซ้าย: Esri รุ่น ${(WBL.find(x=>x.k===$("cmpSel").value)||{}).d||""} · ขวา: รุ่นล่าสุด ${WBL[0].d} — ลากเส้นกลางเพื่อดูว่าพื้นที่เปลี่ยนไปไหม`;info();
+}
+$("exp").onclick=()=>{if(!reports.length)return toast("ยังไม่มีข้อมูล");const rows=[["สถานที่","จังหวัด","ประเภท","ระดับ","ปริมาณ","ละติจูด","ลองจิจูด","วันที่"],...reports.map(r=>[r.place,r.province,r.type,r.severity,r.amount,r.lat,r.lng,r.date])];const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n")],{type:"text/csv"}));a.download="smartwaste-reports.csv";a.click()};
+$("clr").onclick=()=>{if(confirm("ลบรายงานทั้งหมดในเครื่องนี้?")){reports=[];saveR();renderMap();toast("ลบแล้ว")}};
+renderPlayer();renderMap();
+if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
